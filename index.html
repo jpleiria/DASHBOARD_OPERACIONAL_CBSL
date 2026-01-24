@@ -134,35 +134,51 @@
         }
 
         #card-shelly { background: #000; position: relative; border-radius: 8px; overflow: hidden; border: 2px solid #334155; }
-        #card-shelly iframe { width: 100%; height: 100%; border: none; background: white; }
+        
+        /* ZOOM DA JANELA MINIMIZADA DO SHELLY */
+        #card-shelly iframe { 
+            width: 133.33%; /* 100 / 0.75 */
+            height: 133.33%; 
+            transform: scale(0.75); /* Zoom a 75% */
+            transform-origin: top left;
+            border: none; 
+            background: white; 
+        }
+
+        /* RESET DO ZOOM QUANDO MAXIMIZADO */
+        #card-shelly.maximized iframe {
+            width: 100% !important;
+            height: 100% !important;
+            transform: scale(1) !important;
+        }
 
         /* Estilo para as notas de credenciais (Ocultas por padrão) */
         #shelly-credentials {
             display: none;
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.95);
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 25px;
+            border-radius: 10px;
             border: 2px solid var(--accent-radio);
             z-index: 5002;
             text-align: center;
             pointer-events: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
-        /* Mostra apenas quando o card está maximizado */
+        /* Mostra credenciais apenas quando maximizado */
         #card-shelly.maximized #shelly-credentials {
             display: block;
         }
 
         #shelly-credentials p {
-            margin: 2px 0;
+            margin: 4px 0;
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: bold;
         }
 
@@ -213,14 +229,9 @@
             border: 3px solid var(--accent-primary) !important;
         }
         
-      .maximized iframe { 
-    display: block !important; 
-    width: 125% !important;  /* Aumenta a largura interna para compensar a redução */
-    height: 125% !important; /* Aumenta a altura interna para compensar a redução */
-    transform: scale(0.9);    /* Define o zoom em 90% */
-    transform-origin: 0 0;    /* Garante que o zoom comece pelo canto superior esquerdo */
-    border: none;
-}
+        .maximized iframe { display: block !important; }
+        .maximized .close-btn-max { display: block !important; }
+        .maximized .resize-btn { display: none; }
 
     </style>
 </head>
@@ -346,7 +357,7 @@
 
     const apoios = [
         { id: 'chefe', label: 'CHEFE SERVIÇO À CENTRAL' }, { id: 'rendição', label: 'RENDIÇÃO À CENTRAL' },
-        { id: 'logistica', label: 'LOGISTICA PRONTA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' }
+        { id: 'logistica', label: 'LOGISTICA PRONTA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS PARQUE VIATURAS' }
     ];
 
     function init() {
