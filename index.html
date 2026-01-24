@@ -26,10 +26,21 @@
             overflow: hidden;
         }
 
-        body.has-maximized .controls-panel, 
-        body.has-maximized .main-layout {
-            pointer-events: none;
-            filter: blur(2px) grayscale(0.5);
+        /* Camada de Fundo para quando algo está maximizado */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9000;
+        }
+
+        body.has-maximized #overlay {
+            display: block;
         }
 
         header {
@@ -59,10 +70,9 @@
         #clock-date { font-size: 0.8rem; color: var(--text-dim); text-transform: capitalize; }
         #clock-time { font-size: 1.3rem; color: #ffffff; font-weight: 800; font-family: 'Courier New', monospace; }
 
-        /* Ajuste para Layout Vertical */
         .dashboard-container { 
             display: flex;
-            flex-direction: column; /* Pilha vertical */
+            flex-direction: column; 
             gap: 8px; 
             padding: 8px; 
             flex: 1; 
@@ -76,7 +86,7 @@
             display: flex; 
             flex-direction: column; 
             gap: 5px;
-            height: 35%; /* Ocupa a parte superior */
+            height: 35%; 
             overflow-y: auto;
         }
         
@@ -91,7 +101,7 @@
         .volume-slider { flex: 1; cursor: pointer; height: 6px; accent-color: var(--accent-primary); }
         .volume-pct { font-size: 0.75rem; min-width: 35px; text-align: right; }
 
-        .button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } /* 4 colunas em vertical */
+        .button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         
         .btn-audio { 
             background: #334155; border: 1px solid #475569; color: white; padding: 6px 2px; border-radius: 6px; 
@@ -117,7 +127,7 @@
 
         .top-priority-apps {
             display: grid; 
-            grid-template-rows: 1.2fr 1fr; /* Shelly em cima das Notas */
+            grid-template-rows: 1.2fr 1fr; 
             gap: 8px;
             flex: 1;
         }
@@ -135,7 +145,7 @@
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
             gap: 8px; 
-            height: 80px; /* Rodapé fixo */
+            height: 80px; 
             flex-shrink: 0;
         }
 
@@ -161,19 +171,27 @@
             cursor: pointer; font-size: 1rem; font-weight: 800; z-index: 10001;
         }
 
+        /* REGRAS PARA O CARD MAXIMIZADO */
         .maximized { 
-            position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; 
-            height: 100vh !important; z-index: 9999 !important; border-radius: 0 !important;
+            position: fixed !important; 
+            top: 0 !important; 
+            left: 0 !important; 
+            width: 100vw !important; 
+            height: 100vh !important; 
+            z-index: 10000 !important; 
+            border-radius: 0 !important;
+            border: none !important;
         }
         
         .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; }
         .maximized .close-btn-max { display: block !important; }
+        .maximized .resize-btn { display: none; }
 
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
 
-<header>
+<div id="overlay"></div> <header>
     <div class="header-left">
         <div class="logos">
             <img src="logo.png" alt="Bombeiros">
@@ -304,10 +322,12 @@
         const card = document.getElementById(cardId);
         const iframe = card.querySelector('iframe');
         const body = document.body;
+
         if (card.classList.contains('maximized')) {
             card.classList.remove('maximized');
             body.classList.remove('has-maximized');
         } else {
+            // Carregar o iframe apenas quando maximizado se tiver data-src
             if (iframe && iframe.hasAttribute('data-src')) {
                 iframe.src = iframe.getAttribute('data-src');
                 iframe.removeAttribute('data-src');
