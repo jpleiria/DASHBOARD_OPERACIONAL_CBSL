@@ -26,10 +26,6 @@
             overflow: hidden;
         }
 
-        #overlay {
-            display: none;
-        }
-
         header {
             padding: 0 15px;
             display: flex;
@@ -126,67 +122,43 @@
             position: relative;
         }
 
+        /* AJUSTE AQUI: Shelly maior (3fr) e Notas menores (0.7fr) */
         .top-priority-apps {
             display: grid; 
-            grid-template-rows: 1.2fr 1fr; 
+            grid-template-rows: 3fr 0.7fr; 
             gap: 8px;
             flex: 1;
         }
 
         #card-shelly { background: #000; position: relative; border-radius: 8px; overflow: hidden; border: 2px solid #334155; }
-        
-        /* ZOOM DA JANELA MINIMIZADA DO SHELLY */
-        #card-shelly iframe { 
-            width: 133.33%; /* 100 / 0.75 */
-            height: 133.33%; 
-            transform: scale(0.75); /* Zoom a 75% */
-            transform-origin: top left;
-            border: none; 
-            background: white; 
-        }
+        #card-shelly iframe { width: 100%; height: 100%; border: none; background: white; }
 
-        /* RESET DO ZOOM QUANDO MAXIMIZADO */
-        #card-shelly.maximized iframe {
-            width: 100% !important;
-            height: 100% !important;
-            transform: scale(1) !important;
-        }
-
-        /* Estilo para as notas de credenciais (Ocultas por padrão) */
         #shelly-credentials {
             display: none;
             position: absolute;
-            bottom: 25px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.95);
             color: white;
-            padding: 12px 25px;
-            border-radius: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
             border: 2px solid var(--accent-radio);
             z-index: 5002;
             text-align: center;
             pointer-events: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        /* Mostra credenciais apenas quando maximizado */
-        #card-shelly.maximized #shelly-credentials {
-            display: block;
-        }
+        #card-shelly.maximized #shelly-credentials { display: block; }
 
-        #shelly-credentials p {
-            margin: 4px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            font-weight: bold;
-        }
+        #shelly-credentials p { margin: 2px 0; font-family: 'Courier New', monospace; font-size: 0.9rem; font-weight: bold; }
 
         .notes-container {
             background: #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 2px solid #334155;
         }
 
-        #editor { flex: 1; padding: 15px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 20px; line-height: 1.4; }
+        #editor { flex: 1; padding: 10px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 18px; line-height: 1.3; }
 
         .minimized-apps-bar { 
             display: grid; 
@@ -229,9 +201,15 @@
             border: 3px solid var(--accent-primary) !important;
         }
         
-        .maximized iframe { display: block !important; }
-        .maximized .close-btn-max { display: block !important; }
-        .maximized .resize-btn { display: none; }
+        /* AJUSTE DE ZOOM: Escala 0.9 (90%) e compensação de tamanho */
+        .maximized iframe { 
+            display: block !important; 
+            width: 111.11% !important;  
+            height: 111.11% !important; 
+            transform: scale(0.9);    
+            transform-origin: 0 0;    
+            border: none;
+        }
 
     </style>
 </head>
@@ -357,7 +335,7 @@
 
     const apoios = [
         { id: 'chefe', label: 'CHEFE SERVIÇO À CENTRAL' }, { id: 'rendição', label: 'RENDIÇÃO À CENTRAL' },
-        { id: 'logistica', label: 'LOGISTICA PRONTA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS PARQUE VIATURAS' }
+        { id: 'logistica', label: 'LOGISTICA PRONTA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' }
     ];
 
     function init() {
