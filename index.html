@@ -167,11 +167,12 @@
             padding: 0 10px !important;
         }
 
+        /* SHELLY CREDENTIALS */
         .shelly-credentials {
             background: rgba(15, 23, 42, 0.95);
             color: white;
             padding: 5px 10px;
-            display: flex;
+            display: none; /* OCULTO POR PADRÃO */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -180,9 +181,14 @@
             z-index: 21;
         }
 
+        #card-shelly.maximized .shelly-credentials {
+            display: flex; /* MOSTRA APENAS MAXIMIZADO */
+        }
+
         .shelly-credentials span { font-size: 0.85rem; font-weight: bold; }
         .shelly-credentials strong { color: var(--accent-radio); font-size: 0.9rem; }
 
+        /* CARDS E ZOOM */
         .minimized-apps-bar {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -193,8 +199,23 @@
         .app-card.maximized { position: fixed; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 9999; border-radius: 0; }
 
         .iframe-wrapper { width: 100%; height: 100%; overflow: hidden; position: relative; }
+        
+        /* ZOOM AUMENTADO NA SHELLY QUANDO MINIMIZADO */
+        #card-shelly .zoom-content { 
+            width: 83.33% !important; /* Inverso de 1.2 para não cortar */
+            height: 83.33% !important; 
+            transform: scale(1.2); 
+            transform-origin: 0 0; 
+        }
+
+        /* ZOOM NORMAL EM OUTROS CARDS QUE USAM ZOOM-OUT */
         .zoom-out-content { width: 125% !important; height: 125% !important; transform: scale(0.8); transform-origin: 0 0; }
-        .app-card.maximized .zoom-out-content { width: 100% !important; height: 100% !important; transform: scale(1) !important; }
+        
+        /* RESET DE ZOOM AO MAXIMIZAR */
+        .app-card.maximized .zoom-content, 
+        .app-card.maximized .zoom-out-content { 
+            width: 100% !important; height: 100% !important; transform: scale(1) !important; 
+        }
 
         .app-label { 
             position: absolute; 
@@ -208,20 +229,11 @@
             z-index: 20; 
         }
 
-        /* CONFIGURAÇÃO SOLICITADA: Ocultar legenda do Shelly por padrão */
-        #card-shelly .app-label {
-            display: none;
-        }
+        /* LEGENDA SHELLY CONDICIONAL */
+        #card-shelly .app-label { display: none; }
+        #card-shelly.maximized .app-label { display: block; }
 
-        /* Mostrar legenda do Shelly apenas quando maximizado */
-        #card-shelly.maximized .app-label {
-            display: block;
-        }
-
-        /* Esconder legendas dos outros apps ao maximizar */
-        .app-card.maximized:not(#card-shelly) .app-label {
-            display: none;
-        }
+        .app-card.maximized:not(#card-shelly) .app-label { display: none; }
 
         .resize-btn { position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.8); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.6rem; z-index: 30; }
         iframe { width: 100%; height: 100%; border: none; background: white; }
@@ -273,7 +285,7 @@
         <section class="top-priority-apps">
             <div class="app-card" id="card-shelly" style="display: flex; flex-direction: column;">
                 <button class="resize-btn" onclick="toggleMaximize('card-shelly')">MAX</button>
-                <div class="iframe-wrapper" style="flex: 1;"><iframe src="https://control.shelly.cloud/#/dash/-1" class="zoom-out-content"></iframe></div>
+                <div class="iframe-wrapper" style="flex: 1;"><iframe src="https://control.shelly.cloud/#/dash/-1" class="zoom-content"></iframe></div>
                 <div class="shelly-credentials">
                     <span>Email: <strong>operadorbmlcmos@gmail.com</strong></span>
                     <span>Pass: <strong>opBMLcmos1002</strong></span>
@@ -310,16 +322,9 @@
 </div>
 
 <script>
-    // --- EDITOR ---
-    function execCmd(command, value = null) {
-        document.execCommand(command, false, value);
-        saveNotes();
-    }
-    function execFormat(cmd) {
-        document.execCommand(cmd, false, null);
-        checkStates();
-        saveNotes();
-    }
+    // --- FUNÇÕES DO EDITOR ---
+    function execCmd(command, value = null) { document.execCommand(command, false, value); saveNotes(); }
+    function execFormat(cmd) { document.execCommand(cmd, false, null); checkStates(); saveNotes(); }
     function checkStates() {
         const states = { 'bold': 'btn-bold', 'italic': 'btn-italic', 'underline': 'btn-underline' };
         for (let cmd in states) {
@@ -342,7 +347,7 @@
         }
     }
 
-    // --- DASHBOARD ---
+    // --- FUNÇÕES DO DASHBOARD ---
     const activeAudios = {};
     let sectionVolumes = { op: 0.5, ap: 0.5, radio: 0.5 };
     let lastActiveRadio = null;
