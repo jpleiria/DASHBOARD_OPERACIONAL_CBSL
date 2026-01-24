@@ -90,12 +90,24 @@
         .volume-slider { flex: 1; cursor: pointer; height: 6px; accent-color: var(--accent-primary); }
         .volume-pct { font-size: 0.75rem; min-width: 35px; text-align: right; }
 
-        .button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         
         .btn-audio { 
-            background: #334155; border: 1px solid #475569; color: white; padding: 6px 2px; border-radius: 6px; 
-            cursor: pointer; font-size: 0.7rem; font-weight: 600; min-height: 40px; transition: all 0.2s;
-        }
+    background: #334155; 
+    border: 1px solid #475569; 
+    color: white; 
+    padding: 10px 4px; /* Aumentado o padding vertical */
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 0.85rem; /* Aumentado o tamanho da fonte (era 0.7rem) */
+    font-weight: 800;   /* Deixado o texto mais "grosso" */
+    min-height: 65px;   /* Aumentada a altura mínima (era 40px) */
+    transition: all 0.2s;
+    line-height: 1.2;   /* Melhora o espaçamento entre o ícone e o texto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
         .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 4px; }
         .is-playing { animation: pulse-alert 0.8s infinite !important; border: 2px solid white !important; }
@@ -249,27 +261,27 @@
         <section class="minimized-apps-bar">
             <div class="app-card app-card-iconic" id="card-escala" onclick="toggleMaximize('card-escala')">
                 <button class="close-btn-max">VOLTAR</button>
-                <div class="app-icon">📅</div><div class="app-desc">ESCALA</div>
+                <div class="app-icon">📅</div><div class="app-desc">ESCALA DIÁRIA</div>
                 <iframe data-src="https://jpleiria.github.io/escala_servico/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-coord" onclick="toggleMaximize('card-coord')">
                 <button class="close-btn-max">VOLTAR</button>
-                <div class="app-icon">📍</div><div class="app-desc">COORD.</div>
+                <div class="app-icon">📍</div><div class="app-desc">CONVERSOR COORDENADAS</div>
                 <iframe data-src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-classif" onclick="toggleMaximize('card-classif')">
                 <button class="close-btn-max">VOLTAR</button>
-                <div class="app-icon">🔢</div><div class="app-desc">CODS</div>
+                <div class="app-icon">🔢</div><div class="app-desc">CLASSIFICAÇÕES OCORRÊNCIAS</div>
                 <iframe data-src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-ppi" onclick="toggleMaximize('card-ppi')">
                 <button class="close-btn-max">VOLTAR</button>
-                <div class="app-icon">🛣️</div><div class="app-desc">PPI</div>
+                <div class="app-icon">🛣️</div><div class="app-desc">PPI AUTOESTRADAS</div>
                 <iframe data-src="https://jpleiria.github.io/ppi_autoestradas/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-transito" onclick="toggleMaximize('card-transito')">
                 <button class="close-btn-max">VOLTAR</button>
-                <div class="app-icon">🚗</div><div class="app-desc">TRANS</div>
+                <div class="app-icon">🚗</div><div class="app-desc">TRANSITO EM DIRETO</div>
                 <iframe data-src="https://jpleiria.github.io/transito_tempo_real/"></iframe>
             </div>
         </section>
