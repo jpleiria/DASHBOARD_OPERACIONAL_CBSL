@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Operacional - CBSL</title>
+    <title>Dashboard Operacional - CBSL (Vertical)</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -26,73 +26,79 @@
             overflow: hidden;
         }
 
-        /* Bloqueio de fundo e desfoque quando algo está aberto */
         body.has-maximized .controls-panel, 
-        body.has-maximized .app-card:not(.maximized) {
+        body.has-maximized .main-layout {
             pointer-events: none;
             filter: blur(2px) grayscale(0.5);
         }
 
         header {
-            padding: 0 20px;
+            padding: 0 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: var(--card-bg);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             z-index: 100;
-            height: 60px;
+            height: 55px;
             flex-shrink: 0;
         }
 
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .logos img { height: 38px; width: auto; }
+        .header-left { display: flex; align-items: center; gap: 8px; }
+        .logos img { height: 32px; width: auto; }
         
         .clock-container {
             display: flex;
             align-items: baseline;
             background: rgba(0, 0, 0, 0.3);
-            padding: 3px 15px;
+            padding: 2px 10px;
             border-radius: 6px;
-            gap: 15px;
+            gap: 10px;
         }
 
-        #clock-date { font-size: 0.95rem; color: var(--text-dim); text-transform: capitalize; }
-        #clock-time { font-size: 1.6rem; color: #ffffff; font-weight: 800; font-family: 'Courier New', monospace; }
+        #clock-date { font-size: 0.8rem; color: var(--text-dim); text-transform: capitalize; }
+        #clock-time { font-size: 1.3rem; color: #ffffff; font-weight: 800; font-family: 'Courier New', monospace; }
 
+        /* Ajuste para Layout Vertical */
         .dashboard-container { 
-            display: grid; 
-            grid-template-columns: 450px 1fr; 
-            gap: 10px; 
-            padding: 10px; 
+            display: flex;
+            flex-direction: column; /* Pilha vertical */
+            gap: 8px; 
+            padding: 8px; 
             flex: 1; 
             overflow: hidden; 
         }
 
         .controls-panel { 
-            background: var(--card-bg); padding: 12px; border-radius: 10px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 5px;
+            background: var(--card-bg); 
+            padding: 10px; 
+            border-radius: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px;
+            height: 35%; /* Ocupa a parte superior */
+            overflow-y: auto;
         }
         
         .category-group {
-            background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 8px;
-            border: 1px solid #334155; margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.02); padding: 8px; border-radius: 8px;
+            border: 1px solid #334155; margin-bottom: 4px;
         }
 
-        .category-title { color: var(--accent-primary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; font-weight: bold; display: block; }
+        .category-title { color: var(--accent-primary); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 6px; font-weight: bold; display: block; }
 
-        .inline-volume { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .inline-volume { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .volume-slider { flex: 1; cursor: pointer; height: 6px; accent-color: var(--accent-primary); }
-        .volume-pct { font-size: 0.8rem; min-width: 35px; text-align: right; }
+        .volume-pct { font-size: 0.75rem; min-width: 35px; text-align: right; }
 
-        .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } /* 4 colunas em vertical */
         
         .btn-audio { 
-            background: #334155; border: 1px solid #475569; color: white; padding: 8px 4px; border-radius: 6px; 
-            cursor: pointer; font-size: 0.75rem; font-weight: 600; min-height: 45px; transition: all 0.2s;
+            background: #334155; border: 1px solid #475569; color: white; padding: 6px 2px; border-radius: 6px; 
+            cursor: pointer; font-size: 0.7rem; font-weight: 600; min-height: 40px; transition: all 0.2s;
         }
 
-        .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 5px; }
+        .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 4px; }
         .is-playing { animation: pulse-alert 0.8s infinite !important; border: 2px solid white !important; }
 
         @keyframes pulse-alert {
@@ -102,65 +108,57 @@
         }
 
         .main-layout {
-            display: grid; grid-template-rows: 1fr 120px; gap: 10px; height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            overflow: hidden;
         }
 
         .top-priority-apps {
-            display: grid; grid-template-columns: 450px 1fr; gap: 10px;
+            display: grid; 
+            grid-template-rows: 1.2fr 1fr; /* Shelly em cima das Notas */
+            gap: 8px;
+            flex: 1;
         }
 
         #card-shelly { background: #000; position: relative; border-radius: 8px; overflow: hidden; border: 2px solid #334155; }
-        .iframe-container { width: 100%; height: 100%; overflow: hidden; position: relative; flex: 1; }
         #card-shelly iframe { width: 100%; height: 100%; border: none; background: white; }
-
-        .shelly-credentials {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(15, 23, 42, 0.95); color: white; padding: 8px 10px; display: none;
-            flex-direction: column; align-items: center; font-family: monospace; border-top: 1px solid #3b82f6; z-index: 21;
-        }
-        #card-shelly.maximized .shelly-credentials { display: flex; }
 
         .notes-container {
             background: #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 2px solid #334155;
         }
 
-        .editor-toolbar {
-            background: #cbd5e1; padding: 8px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #94a3b8;
+        #editor { flex: 1; padding: 15px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 20px; line-height: 1.4; }
+
+        .minimized-apps-bar { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 8px; 
+            height: 80px; /* Rodapé fixo */
+            flex-shrink: 0;
         }
-
-        .editor-toolbar button, .editor-toolbar select, .editor-toolbar input {
-            padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold; height: 32px;
-        }
-
-        #editor { flex: 1; padding: 20px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 24px; line-height: 1.4; }
-
-        .minimized-apps-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 
         .app-card { 
             background: var(--card-bg); border-radius: 8px; overflow: hidden; position: relative; 
             border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
-            text-align: center; transition: all 0.2s;
+            text-align: center;
         }
 
-        .app-card-iconic .app-icon { font-size: 1.8rem; margin-bottom: 5px; }
-        .app-card-iconic .app-desc { font-size: 0.75rem; font-weight: bold; line-height: 1.2; text-transform: uppercase; }
+        .app-card-iconic .app-icon { font-size: 1.4rem; }
+        .app-card-iconic .app-desc { font-size: 0.6rem; font-weight: bold; text-transform: uppercase; }
         .app-card-iconic iframe { display: none; }
 
-        /* --- CONTROLO DOS BOTÕES --- */
         .resize-btn { 
-            position: absolute; top: 10px; right: 10px; background: rgba(15, 23, 42, 0.9); 
-            color: white; border: 2px solid var(--accent-primary); border-radius: 6px; padding: 6px 12px; 
-            cursor: pointer; font-size: 0.75rem; font-weight: bold; z-index: 50;
+            position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.9); 
+            color: white; border: 1px solid var(--accent-primary); border-radius: 4px; padding: 4px 8px; 
+            cursor: pointer; font-size: 0.65rem; z-index: 50;
         }
 
-        /* Esconde o botão abrir da Shelly se houver algo maximizado */
-        body.has-maximized .resize-btn { display: none !important; }
-
-        /* Botão de Fechar Geral (Maximizado) */
         .close-btn-max { 
             display: none; position: fixed; top: 20px; right: 20px; background: var(--accent-danger); 
             color: white; border: 2px solid white; border-radius: 8px; padding: 12px 24px; 
-            cursor: pointer; font-size: 1rem; font-weight: 800; z-index: 10001; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer; font-size: 1rem; font-weight: 800; z-index: 10001;
         }
 
         .maximized { 
@@ -169,7 +167,6 @@
         }
         
         .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; }
-        .maximized .app-icon, .maximized .app-desc { display: none !important; }
         .maximized .close-btn-max { display: block !important; }
 
     </style>
@@ -179,13 +176,12 @@
 <header>
     <div class="header-left">
         <div class="logos">
-            <img src="leiria.png" alt="Leiria">
             <img src="logo.png" alt="Bombeiros">
         </div>
-        <h2 style="margin-left: 10px; font-size: 1rem; color: var(--text-dim);">DASHBOARD OPERACIONAL - CBSL</h2>
+        <h2 style="font-size: 0.8rem; color: var(--text-dim);">CBSL - VERTICAL</h2>
     </div>
-    <div style="display: flex; align-items: center; gap: 20px;">
-        <div id="silence-timer" style="color:var(--accent-radio); font-weight:bold; font-size: 0.9rem;"></div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div id="silence-timer" style="color:var(--accent-radio); font-weight:bold; font-size: 0.7rem;"></div>
         <div class="clock-container">
             <span id="clock-date"></span>
             <span id="clock-time"></span>
@@ -198,26 +194,29 @@
         <button class="btn-mute-all" onclick="stopAllAudios()">SILENCIAR TUDO</button>
         
         <div class="category-group">
-    <span class="category-title">🚨 Operacional</span>
-    <div class="inline-volume">
-        <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1" oninput="updateSectionVolume('op', this.value)">
-        <span class="volume-pct" id="txt-vol-op">100%</span>
-    </div>
-    <div class="button-grid" id="grid-operacional"></div>
-</div>
+            <span class="category-title">🚨 Operacional</span>
+            <div class="inline-volume">
+                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1" oninput="updateSectionVolume('op', this.value)">
+                <span class="volume-pct" id="txt-vol-op">100%</span>
+            </div>
+            <div class="button-grid" id="grid-operacional"></div>
+        </div>
 
-<div class="category-group">
-    <span class="category-title">Apoio</span>
-    <div class="inline-volume">
-        <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1" oninput="updateSectionVolume('ap', this.value)">
-        <span class="volume-pct" id="txt-vol-ap">100%</span>
-    </div>
-    <div class="button-grid" id="grid-apoio"></div>
-</div>
+        <div class="category-group">
+            <span class="category-title">Apoio</span>
+            <div class="inline-volume">
+                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1" oninput="updateSectionVolume('ap', this.value)">
+                <span class="volume-pct" id="txt-vol-ap">100%</span>
+            </div>
+            <div class="button-grid" id="grid-apoio"></div>
+        </div>
 
         <div class="category-group">
             <span class="category-title">📻 Rádios</span>
-            <div class="inline-volume"><input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('radio', this.value)"><span class="volume-pct" id="txt-vol-radio">50%</span></div>
+            <div class="inline-volume">
+                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('radio', this.value)">
+                <span class="volume-pct" id="txt-vol-radio">50%</span>
+            </div>
             <div class="button-grid">
                 <button class="btn-audio" id="btn-comercial" onclick="toggleRadio('comercial', 'https://stream-icy.bauermedia.pt/comercial.aac')">COMERCIAL</button>
                 <button class="btn-audio" id="btn-rfm" onclick="toggleRadio('rfm', 'https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC')">RFM</button>
@@ -229,58 +228,40 @@
         <section class="top-priority-apps">
             <div class="app-card" id="card-shelly" onclick="toggleMaximize('card-shelly')">
                 <button class="resize-btn">ABRIR</button>
-                <button class="close-btn-max">VOLTAR AO DASHBOARD</button>
-                <div class="iframe-container">
-                    <iframe src="https://control.shelly.cloud/#/dash/-1"></iframe>
-                </div>
-                <div class="shelly-credentials">
-                    <span>Email: <strong>operadorbmlcmos@gmail.com</strong></span>
-                    <span>Pass: <strong>opBMLcmos1002</strong></span>
-                </div>
+                <button class="close-btn-max">VOLTAR</button>
+                <iframe src="https://control.shelly.cloud/#/dash/-1"></iframe>
             </div>
 
             <div class="notes-container">
-                <div class="editor-toolbar">
-                    <button id="btn-bold" onclick="execFormat('bold')">B</button>
-                    <button id="btn-italic" onclick="execFormat('italic')">I</button>
-                    <button id="btn-underline" onclick="execFormat('underline')">U</button>
-                    <select onchange="execCmd('fontSize', this.value)">
-                        <option value="3">Pequeno</option>
-                        <option value="5" selected>Normal</option>
-                        <option value="7">Grande</option>
-                    </select>
-                    <input type="color" onchange="execCmd('foreColor', this.value)">
-                    <button style="background:#ef4444; color:white; margin-left:auto" onclick="confirmClearAll()">APAGAR</button>
-                </div>
-                <div id="editor" contenteditable="true" oninput="saveNotes()" onkeyup="checkStates()" onclick="checkStates()"></div>
-                <div style="background:#1e293b; color:white; text-align:center; font-size:0.7rem; padding:2px">NOTAS OPERACIONAIS</div>
+                <div id="editor" contenteditable="true" oninput="saveNotes()"></div>
+                <div style="background:#1e293b; color:white; text-align:center; font-size:0.6rem; padding:2px">NOTAS</div>
             </div>
         </section>
 
         <section class="minimized-apps-bar">
             <div class="app-card app-card-iconic" id="card-escala" onclick="toggleMaximize('card-escala')">
-                <button class="close-btn-max">VOLTAR AO DASHBOARD</button>
-                <div class="app-icon">📅</div><div class="app-desc">ESCALA<br>DIÁRIA</div>
+                <button class="close-btn-max">VOLTAR</button>
+                <div class="app-icon">📅</div><div class="app-desc">ESCALA</div>
                 <iframe data-src="https://jpleiria.github.io/escala_servico/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-coord" onclick="toggleMaximize('card-coord')">
-                <button class="close-btn-max">VOLTAR AO DASHBOARD</button>
-                <div class="app-icon">📍</div><div class="app-desc">COORDENADAS SIRESP</div>
+                <button class="close-btn-max">VOLTAR</button>
+                <div class="app-icon">📍</div><div class="app-desc">COORD.</div>
                 <iframe data-src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-classif" onclick="toggleMaximize('card-classif')">
-                <button class="close-btn-max">VOLTAR AO DASHBOARD</button>
-                <div class="app-icon">🔢</div><div class="app-desc">CLASSIFICAÇÕES</div>
+                <button class="close-btn-max">VOLTAR</button>
+                <div class="app-icon">🔢</div><div class="app-desc">CODS</div>
                 <iframe data-src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-ppi" onclick="toggleMaximize('card-ppi')">
-                <button class="close-btn-max">VOLTAR AO DASHBOARD</button>
-                <div class="app-icon">🛣️</div><div class="app-desc">PPI AUTOESTRADAS</div>
+                <button class="close-btn-max">VOLTAR</button>
+                <div class="app-icon">🛣️</div><div class="app-desc">PPI</div>
                 <iframe data-src="https://jpleiria.github.io/ppi_autoestradas/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-transito" onclick="toggleMaximize('card-transito')">
-                <button class="close-btn-max">VOLTAR AO DASHBOARD</button>
-                <div class="app-icon">🚗</div><div class="app-desc">TRÂNSITO LIVE</div>
+                <button class="close-btn-max">VOLTAR</button>
+                <div class="app-icon">🚗</div><div class="app-desc">TRANS</div>
                 <iframe data-src="https://jpleiria.github.io/transito_tempo_real/"></iframe>
             </div>
         </section>
@@ -288,41 +269,32 @@
 </div>
 
 <script>
-   const activeAudios = {};
-// op e ap começam em 1.0 (100%), radio mantém-se em 0.5 (50%)
-let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.5 }; 
-let lastActiveRadio = null;
+    const activeAudios = {};
+    let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.5 };
+    let lastActiveRadio = null;
     let audioCtx = null;
     let countdownInterval = null;
 
-    // ALTERAÇÃO: Ordem dos botões para alinhar Saída Anulada e Alerta na última linha
     const operacionais = [
-        { id: 'emergencia_medica', label: '*️⃣<br>Emergência Médica' }, 
-        { id: 'acidente_viacao', label: '🚧<br>Acidente' },
-        { id: 'incendio_urbano', label: '🚒<br>Incêndio Urbano' }, 
-        { id: 'incendio_industrial', label: '🚒<br>Incêndio Industrial' },
-        { id: 'incendio_florestal', label: '🔥<br>Incêndio Florestal' }, 
-        { id: 'vazio', label: '', isVazio: true }, // Placeholder para deixar espaço ao lado do Florestal
-        { id: 'saída_anulada', label: '❌<br>Saída Anulada' }, 
-        { id: 'alerta', label: '🚨<br>Alerta' }
+        { id: 'emergencia_medica', label: '*️⃣<br>EMERG' }, 
+        { id: 'acidente_viacao', label: '🚧<br>ACID' },
+        { id: 'incendio_urbano', label: '🚒<br>URB' }, 
+        { id: 'incendio_industrial', label: '🚒<br>IND' },
+        { id: 'incendio_florestal', label: '🔥<br>FLOR' }, 
+        { id: 'saída_anulada', label: '❌<br>ANUL' }, 
+        { id: 'alerta', label: '🚨<br>ALER' }
     ];
 
     const apoios = [
-        { id: 'chefe', label: 'Chefe à Central' }, { id: 'rendição', label: 'Rendição à Central' },
-        { id: 'logistica', label: 'Logística Pronta' }, { id: 'parque_viaturas', label: 'Todos Elementos<br>Parque Viaturas' }, { id: 'troca_turno', label: '_*Turno*_' }
+        { id: 'chefe', label: 'CHEFE' }, { id: 'rendição', label: 'REND.' },
+        { id: 'logistica', label: 'LOG.' }, { id: 'parque_viaturas', label: 'PARQUE' }
     ];
 
     function init() {
         const gridOp = document.getElementById('grid-operacional');
         operacionais.forEach(item => {
-            if(item.isVazio) {
-                // Cria uma div vazia para manter o layout da grelha
-                gridOp.innerHTML += `<div></div>`;
-            } else {
-                gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'op')">${item.label}</button>`;
-            }
+            gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'op')">${item.label}</button>`;
         });
-        
         const gridAp = document.getElementById('grid-apoio');
         apoios.forEach(item => gridAp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'ap')">${item.label}</button>`);
         updateClock(); setInterval(updateClock, 1000); loadNotes();
@@ -332,7 +304,6 @@ let lastActiveRadio = null;
         const card = document.getElementById(cardId);
         const iframe = card.querySelector('iframe');
         const body = document.body;
-        
         if (card.classList.contains('maximized')) {
             card.classList.remove('maximized');
             body.classList.remove('has-maximized');
@@ -343,17 +314,6 @@ let lastActiveRadio = null;
             }
             card.classList.add('maximized');
             body.classList.add('has-maximized');
-        }
-    }
-
-    function execCmd(command, value = null) { document.execCommand(command, false, value); saveNotes(); }
-    function execFormat(cmd) { document.execCommand(cmd, false, null); checkStates(); saveNotes(); }
-    function checkStates() {
-        const states = { 'bold': 'btn-bold', 'italic': 'btn-italic', 'underline': 'btn-underline' };
-        for (let cmd in states) {
-            const btn = document.getElementById(states[cmd]);
-            if (btn && document.queryCommandState(cmd)) btn.classList.add('btn-active');
-            else if(btn) btn.classList.remove('btn-active');
         }
     }
 
@@ -378,12 +338,6 @@ let lastActiveRadio = null;
             });
             if (countdownInterval) clearInterval(countdownInterval);
             document.getElementById('silence-timer').innerText = "";
-        } else if (section === 'ap') {
-            if (lastActiveRadio && activeAudios[lastActiveRadio.id]) {
-                activeAudios[lastActiveRadio.id].pause();
-            }
-            if (countdownInterval) clearInterval(countdownInterval);
-            document.getElementById('silence-timer').innerText = "";
         }
 
         const audio = new Audio(id + '.mp3');
@@ -391,27 +345,18 @@ let lastActiveRadio = null;
         btn.classList.add('is-playing');
         audio.play();
         activeAudios[id] = audio;
-        
-        audio.onended = () => { 
-            btn.classList.remove('is-playing'); 
-            delete activeAudios[id]; 
-            checkAndResumeRadio(); 
-        };
+        audio.onended = () => { btn.classList.remove('is-playing'); delete activeAudios[id]; checkAndResumeRadio(); };
     }
 
     function toggleRadio(id, url, autoResume = false) {
         iniciarAudioContext();
         const btn = document.getElementById('btn-' + id);
-        const AlertasAtivos = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
-        if (AlertasAtivos.length > 0 && !autoResume) return;
-
         if (activeAudios[id] && !autoResume) {
             activeAudios[id].pause(); delete activeAudios[id]; lastActiveRadio = null;
             btn.style.background = "#334155"; btn.style.color = "white";
         } else {
             const outra = (id === 'comercial') ? 'rfm' : 'comercial';
             if (activeAudios[outra]) { activeAudios[outra].pause(); delete activeAudios[outra]; document.getElementById('btn-' + outra).style.background = "#334155"; }
-            
             const radioAudio = new Audio(url);
             radioAudio.volume = sectionVolumes.radio;
             radioAudio.play().then(() => {
@@ -445,10 +390,7 @@ let lastActiveRadio = null;
         Object.keys(activeAudios).forEach(id => { 
             activeAudios[id].pause();
             const btn = document.getElementById('btn-' + id);
-            if (btn) {
-                btn.classList.remove('is-playing');
-                if (id === 'comercial' || id === 'rfm') { btn.style.background = "#334155"; btn.style.color = "white"; }
-            }
+            if (btn) btn.classList.remove('is-playing');
             delete activeAudios[id];
         });
         lastActiveRadio = null;
@@ -457,18 +399,15 @@ let lastActiveRadio = null;
     function updateSectionVolume(section, value) {
         sectionVolumes[section] = parseFloat(value);
         document.getElementById(`txt-vol-${section}`).innerText = Math.round(value * 100) + '%';
-        if(activeAudios['comercial']) activeAudios['comercial'].volume = sectionVolumes.radio;
-        if(activeAudios['rfm']) activeAudios['rfm'].volume = sectionVolumes.radio;
     }
 
     function iniciarAudioContext() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function saveNotes() { localStorage.setItem('cbsl_notes', document.getElementById('editor').innerHTML); }
-    function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes') || ''; }
-    function confirmClearAll() { if(confirm("Apagar notas?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
+    function saveNotes() { localStorage.setItem('cbsl_notes_v', document.getElementById('editor').innerHTML); }
+    function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes_v') || ''; }
 
     function updateClock() {
         const agora = new Date();
-        document.getElementById('clock-date').innerText = agora.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.getElementById('clock-date').innerText = agora.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' });
         document.getElementById('clock-time').innerText = agora.toLocaleTimeString('pt-PT', { hour12: false });
     }
 
