@@ -115,6 +115,31 @@
             gap: 10px;
         }
 
+        /* CONFIGURAÇÃO SHELLY */
+        #card-shelly { background: #000; position: relative; border-radius: 8px; overflow: hidden; border: 2px solid #334155; cursor: pointer; }
+        
+        .iframe-container { width: 100%; height: 100%; overflow: hidden; position: relative; flex: 1; }
+        
+       /* CONFIGURAÇÃO SHELLY */
+#card-shelly iframe {
+    width: 90.9%; 
+    height: 90.9%; 
+    transform: scale(1.0); /* <--- AQUI ALTERAS O ZOOM */
+    transform-origin: 0 0; 
+    border: none; 
+    background: white;
+}
+
+        #card-shelly.maximized iframe { width: 100%; height: 100%; transform: scale(1); }
+
+        .shelly-credentials {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(15, 23, 42, 0.95); color: white; padding: 8px 10px; display: none;
+            flex-direction: column; align-items: center; font-family: monospace; border-top: 1px solid #3b82f6; z-index: 21;
+        }
+        #card-shelly.maximized .shelly-credentials { display: flex; }
+
+        /* NOTAS */
         .notes-container {
             background: #e2e8f0;
             border-radius: 8px;
@@ -135,13 +160,11 @@
 
         .editor-toolbar button, .editor-toolbar select, .editor-toolbar input {
             padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold; height: 32px;
-            min-width: 35px;
         }
 
-        /* Estilos específicos para os botões de formatação */
-        #btn-bold { font-weight: 900 !important; font-size: 1.1rem; }
-        #btn-italic { font-style: italic !important; font-family: "Times New Roman", serif; font-size: 1.1rem; }
-        #btn-underline { text-decoration: underline !important; font-size: 1.1rem; }
+        #btn-bold { font-weight: 900 !important; }
+        #btn-italic { font-style: italic !important; font-family: serif; }
+        #btn-underline { text-decoration: underline !important; }
 
         .btn-active { background: var(--accent-primary) !important; color: white !important; }
 
@@ -149,19 +172,7 @@
             flex: 1; padding: 20px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 24px; line-height: 1.4;
         }
 
-        #card-shelly { background: #000; position: relative; }
-        .shelly-credentials {
-            background: rgba(15, 23, 42, 0.95); color: white; padding: 5px 10px; display: none;
-            flex-direction: column; align-items: center; font-family: monospace; border-top: 1px solid #3b82f6; z-index: 21;
-        }
-        #card-shelly.maximized .shelly-credentials { display: flex; }
-
-        .iframe-container { width: 100%; height: 100%; overflow: hidden; position: relative; flex: 1; }
-        #card-shelly iframe {
-            width: 90.9%; height: 90.9%; transform: scale(1.1); transform-origin: 0 0; border: none; background: white;
-        }
-        #card-shelly.maximized iframe { width: 100%; height: 100%; transform: scale(1); }
-
+        /* BARRA INFERIOR */
         .minimized-apps-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 
         .app-card { 
@@ -174,35 +185,27 @@
         .app-card-iconic .app-desc { font-size: 0.75rem; font-weight: bold; line-height: 1.2; text-transform: uppercase; }
         .app-card-iconic iframe { display: none; }
 
-        .minimized-apps-bar .resize-btn { display: none; }
-
         .maximized { 
             position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; 
             height: 100vh !important; z-index: 9999 !important; border-radius: 0 !important;
         }
         
         .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; transform: scale(1) !important; }
-        .maximized .app-icon, .maximized .app-desc, .maximized .app-label { display: none !important; }
+        .maximized .app-icon, .maximized .app-desc { display: none !important; }
 
         .resize-btn { 
             position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.8); 
             color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.6rem; z-index: 30; 
-            pointer-events: none;
         }
 
         .app-card.maximized .resize-btn { 
-            display: block !important;
             background: var(--accent-danger); 
             font-size: 0.8rem; 
             padding: 8px 15px; 
-            pointer-events: auto;
         }
 
-        .app-label-shelly {
-            position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.9);
-            color: white; font-size: 0.65rem; padding: 2px 5px; text-align: center; pointer-events: none; z-index: 20; display: none;
-        }
-        #card-shelly.maximized .app-label-shelly { display: block; }
+        .minimized-apps-bar .resize-btn { display: none; }
+
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
@@ -261,7 +264,6 @@
                     <span>Email: <strong>operadorbmlcmos@gmail.com</strong></span>
                     <span>Pass: <strong>opBMLcmos1002</strong></span>
                 </div>
-                <div class="app-label-shelly">SHELLY CLOUD</div>
             </div>
 
             <div class="notes-container">
@@ -338,6 +340,24 @@
         updateClock(); setInterval(updateClock, 1000); loadNotes();
     }
 
+    function toggleMaximize(cardId) {
+        const card = document.getElementById(cardId);
+        const iframe = card.querySelector('iframe');
+        const btn = card.querySelector('.resize-btn');
+        
+        if (card.classList.contains('maximized')) {
+            card.classList.remove('maximized');
+            if (btn) btn.innerText = "ABRIR";
+        } else {
+            if (iframe && iframe.hasAttribute('data-src')) {
+                iframe.src = iframe.getAttribute('data-src');
+                iframe.removeAttribute('data-src');
+            }
+            card.classList.add('maximized');
+            if (btn) btn.innerText = "FECHAR";
+        }
+    }
+
     function execCmd(command, value = null) { document.execCommand(command, false, value); saveNotes(); }
     function execFormat(cmd) { document.execCommand(cmd, false, null); checkStates(); saveNotes(); }
     function checkStates() {
@@ -346,23 +366,6 @@
             const btn = document.getElementById(states[cmd]);
             if (document.queryCommandState(cmd)) btn.classList.add('btn-active');
             else btn.classList.remove('btn-active');
-        }
-    }
-
-    function toggleMaximize(cardId) {
-        const card = document.getElementById(cardId);
-        const iframe = card.querySelector('iframe');
-        const btn = card.querySelector('.resize-btn');
-        if (card.classList.contains('maximized')) {
-            card.classList.remove('maximized');
-            if (btn) btn.innerText = (cardId === 'card-shelly') ? 'ABRIR' : '';
-        } else {
-            if (iframe && iframe.hasAttribute('data-src')) {
-                iframe.src = iframe.getAttribute('data-src');
-                iframe.removeAttribute('data-src');
-            }
-            card.classList.add('maximized');
-            if (btn) btn.innerText = 'FECHAR';
         }
     }
 
