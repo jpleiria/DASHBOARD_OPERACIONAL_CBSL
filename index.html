@@ -62,7 +62,7 @@
 
         .dashboard-container { 
             display: grid; 
-            grid-template-columns: 350px 1fr; 
+            grid-template-columns: 450px 1fr; 
             gap: 10px; 
             padding: 10px; 
             flex: 1; 
@@ -85,7 +85,7 @@
         .volume-slider { flex: 1; cursor: pointer; height: 6px; accent-color: var(--accent-primary); }
         .volume-pct { font-size: 0.8rem; min-width: 35px; text-align: right; }
 
-        .button-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
         
         .btn-audio { 
             background: #334155; border: 1px solid #475569; color: white; padding: 8px 4px; border-radius: 6px; 
@@ -288,20 +288,34 @@
     let audioCtx = null;
     let countdownInterval = null;
 
+    // ALTERAÇÃO: Ordem dos botões para alinhar Saída Anulada e Alerta na última linha
     const operacionais = [
-        { id: 'emergencia_medica', label: '*️⃣<br>Emer. Médica' }, { id: 'acidente_viacao', label: '🚧<br>Acidente' },
-        { id: 'incendio_urbano', label: '🚒<br>Inc. Urbano' }, { id: 'incendio_industrial', label: '🚒<br>Inc. Industrial' },
-        { id: 'incendio_florestal', label: '🔥<br>Inc. Florestal' }, { id: 'saída_anulada', label: '❌<br>Saída Anulada' }, { id: 'alerta', label: '🚨<br>Alerta' }
+        { id: 'emergencia_medica', label: '*️⃣<br>Emergência Médica' }, 
+        { id: 'acidente_viacao', label: '🚧<br>Acidente' },
+        { id: 'incendio_urbano', label: '🚒<br>Incêndio Urbano' }, 
+        { id: 'incendio_industrial', label: '🚒<br>Incêndio Industrial' },
+        { id: 'incendio_florestal', label: '🔥<br>Incêndio Florestal' }, 
+        { id: 'vazio', label: '', isVazio: true }, // Placeholder para deixar espaço ao lado do Florestal
+        { id: 'saída_anulada', label: '❌<br>Saída Anulada' }, 
+        { id: 'alerta', label: '🚨<br>Alerta' }
     ];
 
     const apoios = [
-        { id: 'chefe', label: 'Chefe<br>à Central' }, { id: 'rendição', label: 'Rendição<br>à Central' },
-        { id: 'logistica', label: 'Logística<br>Pronta' }, { id: 'parque_viaturas', label: 'Parque<br>Viaturas' }, { id: 'troca_turno', label: '_*Turno*_' }
+        { id: 'chefe', label: 'Chefe à Central' }, { id: 'rendição', label: 'Rendição à Central' },
+        { id: 'logistica', label: 'Logística Pronta' }, { id: 'parque_viaturas', label: 'Todos Elementos<br>Parque Viaturas' }, { id: 'troca_turno', label: '_*Turno*_' }
     ];
 
     function init() {
         const gridOp = document.getElementById('grid-operacional');
-        operacionais.forEach(item => gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'op')">${item.label}</button>`);
+        operacionais.forEach(item => {
+            if(item.isVazio) {
+                // Cria uma div vazia para manter o layout da grelha
+                gridOp.innerHTML += `<div></div>`;
+            } else {
+                gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'op')">${item.label}</button>`;
+            }
+        });
+        
         const gridAp = document.getElementById('grid-apoio');
         apoios.forEach(item => gridAp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'ap')">${item.label}</button>`);
         updateClock(); setInterval(updateClock, 1000); loadNotes();
