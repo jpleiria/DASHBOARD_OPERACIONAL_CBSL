@@ -115,7 +115,6 @@
             gap: 10px;
         }
 
-        /* EDITOR */
         .notes-container {
             background: #e2e8f0;
             border-radius: 8px;
@@ -138,17 +137,12 @@
             padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold; height: 32px;
         }
 
-        .btn-active {
-            background: var(--accent-primary) !important;
-            color: white !important;
-            border-color: #1d4ed8 !important;
-        }
+        .btn-active { background: var(--accent-primary) !important; color: white !important; }
 
         #editor {
             flex: 1; padding: 20px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 24px; line-height: 1.4;
         }
 
-        /* SHELLY */
         #card-shelly { background: #000; position: relative; }
         .shelly-credentials {
             background: rgba(15, 23, 42, 0.95); color: white; padding: 5px 10px; display: none;
@@ -162,7 +156,6 @@
         }
         #card-shelly.maximized iframe { width: 100%; height: 100%; transform: scale(1); }
 
-        /* MINIMIZED BAR */
         .minimized-apps-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 
         .app-card { 
@@ -174,15 +167,12 @@
         .app-card-iconic .app-desc { font-size: 0.8rem; font-weight: bold; }
         .app-card-iconic iframe { display: none; }
 
-        /* MAXIMIZED ADJUSTMENTS */
         .maximized { 
             position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; 
             height: 100vh !important; z-index: 9999 !important; border-radius: 0 !important;
         }
         
         .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; transform: scale(1) !important; }
-
-        /* Esconder ícone e descrição ao maximizar */
         .maximized .app-icon, .maximized .app-desc, .maximized .app-label { display: none !important; }
 
         .resize-btn { 
@@ -197,7 +187,6 @@
             color: white; font-size: 0.65rem; padding: 2px 5px; text-align: center; pointer-events: none; z-index: 20; display: none;
         }
         #card-shelly.maximized .app-label-shelly { display: block; }
-
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
@@ -333,7 +322,6 @@
         updateClock(); setInterval(updateClock, 1000); loadNotes();
     }
 
-    /* EDITOR FUNCTIONS */
     function execCmd(command, value = null) { document.execCommand(command, false, value); saveNotes(); }
     function execFormat(cmd) { document.execCommand(cmd, false, null); checkStates(); saveNotes(); }
     function checkStates() {
@@ -365,10 +353,33 @@
     function playAudio(id, section) {
         iniciarAudioContext();
         const btn = document.getElementById('btn-' + id);
-        if (activeAudios[id]) { activeAudios[id].pause(); btn.classList.remove('is-playing'); delete activeAudios[id]; checkAndResumeRadio(); return; }
         
-        if (section === 'op' || id === 'troca_turno') {
-            if (lastActiveRadio && activeAudios[lastActiveRadio.id]) activeAudios[lastActiveRadio.id].pause();
+        // Se clicar no botão que já está a tocar, pára o som
+        if (activeAudios[id]) { 
+            activeAudios[id].pause(); 
+            btn.classList.remove('is-playing'); 
+            delete activeAudios[id]; 
+            checkAndResumeRadio(); 
+            return; 
+        }
+
+        // HIERARQUIA DE PRIORIDADE
+        if (section === 'op') {
+            // Operacional pára TUDO (Rádio e Apoio)
+            Object.keys(activeAudios).forEach(key => {
+                if (key === 'comercial' || key === 'rfm' || apoios.find(a => a.id === key)) {
+                    activeAudios[key].pause();
+                    document.getElementById('btn-' + key)?.classList.remove('is-playing');
+                    if (key !== 'comercial' && key !== 'rfm') delete activeAudios[key];
+                }
+            });
+            if (countdownInterval) clearInterval(countdownInterval);
+            document.getElementById('silence-timer').innerText = "";
+        } else if (section === 'ap') {
+            // Apoio pára apenas Rádios
+            if (lastActiveRadio && activeAudios[lastActiveRadio.id]) {
+                activeAudios[lastActiveRadio.id].pause();
+            }
             if (countdownInterval) clearInterval(countdownInterval);
             document.getElementById('silence-timer').innerText = "";
         }
@@ -378,18 +389,29 @@
         btn.classList.add('is-playing');
         audio.play();
         activeAudios[id] = audio;
-        audio.onended = () => { btn.classList.remove('is-playing'); delete activeAudios[id]; checkAndResumeRadio(); };
+        
+        audio.onended = () => { 
+            btn.classList.remove('is-playing'); 
+            delete activeAudios[id]; 
+            checkAndResumeRadio(); 
+        };
     }
 
     function toggleRadio(id, url, autoResume = false) {
         iniciarAudioContext();
         const btn = document.getElementById('btn-' + id);
+        
+        // Se houver Alertas ativos (Op ou Apoio), a rádio não liga manualmente
+        const AlertasAtivos = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
+        if (AlertasAtivos.length > 0 && !autoResume) return;
+
         if (activeAudios[id] && !autoResume) {
             activeAudios[id].pause(); delete activeAudios[id]; lastActiveRadio = null;
             btn.style.background = "#334155"; btn.style.color = "white";
         } else {
             const outra = (id === 'comercial') ? 'rfm' : 'comercial';
             if (activeAudios[outra]) { activeAudios[outra].pause(); delete activeAudios[outra]; document.getElementById('btn-' + outra).style.background = "#334155"; }
+            
             const radioAudio = new Audio(url);
             radioAudio.volume = sectionVolumes.radio;
             radioAudio.play().then(() => {
@@ -400,10 +422,14 @@
     }
 
     function checkAndResumeRadio() {
-        const prioritarios = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
-        if (prioritarios.length === 0 && lastActiveRadio) {
+        // Só retoma rádio se NÃO houver nenhum Operacional ou Apoio a tocar
+        const AlertasRestantes = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
+        
+        if (AlertasRestantes.length === 0 && lastActiveRadio) {
             let timeLeft = 60;
             if (countdownInterval) clearInterval(countdownInterval);
+            document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
+            
             countdownInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
