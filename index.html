@@ -213,9 +213,14 @@
             border: 3px solid var(--accent-primary) !important;
         }
         
-        .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; }
-        .maximized .close-btn-max { display: block !important; }
-        .maximized .resize-btn { display: none; }
+      .maximized iframe { 
+    display: block !important; 
+    width: 125% !important;  /* Aumenta a largura interna para compensar a redução */
+    height: 125% !important; /* Aumenta a altura interna para compensar a redução */
+    transform: scale(0.8);    /* Define o zoom em 80% */
+    transform-origin: 0 0;    /* Garante que o zoom comece pelo canto superior esquerdo */
+    border: none;
+}
 
     </style>
 </head>
