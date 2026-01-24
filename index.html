@@ -13,7 +13,6 @@
             --accent-danger: #ef4444;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
-            --editor-bg: #ffffff;
         }
 
         body {
@@ -63,6 +62,7 @@
             overflow: hidden; 
         }
 
+        /* PAINEL DE CONTROLO */
         .controls-panel { 
             background: var(--card-bg); 
             padding: 12px; 
@@ -94,12 +94,11 @@
         }
 
         .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 5px; }
-        
         .is-playing { animation: pulse-alert 0.8s infinite !important; border: 2px solid white !important; }
 
         .main-layout {
             display: grid;
-            grid-template-rows: 1fr 180px;
+            grid-template-rows: 1fr 150px;
             gap: 10px;
             height: 100%;
         }
@@ -110,6 +109,7 @@
             gap: 10px;
         }
 
+        /* EDITOR DE NOTAS */
         .notes-container {
             background: #e2e8f0;
             border-radius: 8px;
@@ -117,6 +117,7 @@
             flex-direction: column;
             overflow: hidden;
             border: 2px solid #334155;
+            position: relative;
         }
 
         .editor-toolbar {
@@ -126,27 +127,6 @@
             gap: 6px;
             align-items: center;
             border-bottom: 1px solid #94a3b8;
-        }
-
-        .editor-toolbar button, .editor-toolbar select, .editor-toolbar input {
-            padding: 6px;
-            cursor: pointer;
-            border: 1px solid #94a3b8;
-            background: white;
-            border-radius: 4px;
-            font-weight: bold;
-            height: 35px;
-            min-width: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-active {
-            background: var(--accent-primary) !important;
-            color: white !important;
-            border-color: #1d4ed8 !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
         #editor {
@@ -160,83 +140,78 @@
             line-height: 1.4;
         }
 
-        .btn-delete-all {
-            background: #ef4444 !important;
-            color: white !important;
-            margin-left: auto !important;
-            padding: 0 10px !important;
-        }
-
-        /* SHELLY CREDENTIALS */
+        /* SHELLY BOX */
+        #card-shelly { background: #000; display: flex; flex-direction: column; }
         .shelly-credentials {
             background: rgba(15, 23, 42, 0.95);
             color: white;
             padding: 5px 10px;
-            display: none; /* OCULTO POR PADRÃO */
+            display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             font-family: monospace;
             border-top: 1px solid #3b82f6;
-            z-index: 21;
         }
+        #card-shelly.maximized .shelly-credentials { display: flex; }
 
-        #card-shelly.maximized .shelly-credentials {
-            display: flex; /* MOSTRA APENAS MAXIMIZADO */
-        }
-
-        .shelly-credentials span { font-size: 0.85rem; font-weight: bold; }
-        .shelly-credentials strong { color: var(--accent-radio); font-size: 0.9rem; }
-
-        /* CARDS E ZOOM */
+        /* BARRA DE ICONES (MINIMIZADOS) */
         .minimized-apps-bar {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
         }
 
-        .app-card { background: #fff; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid #334155; }
-        .app-card.maximized { position: fixed; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 9999; border-radius: 0; }
+        .app-card { 
+            background: var(--card-bg); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            position: relative; 
+            border: 2px solid #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
 
-        .iframe-wrapper { width: 100%; height: 100%; overflow: hidden; position: relative; }
+        .app-card:hover { border-color: var(--accent-primary); transform: translateY(-2px); }
+
+        /* Ícones e Textos nas Miniaturas */
+        .app-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .app-card i { color: var(--accent-primary); }
+        .app-card .app-desc { font-size: 0.8rem; font-weight: bold; color: var(--text-main); text-align: center; }
+
+        /* Esconder iframe e botão interno quando minimizado */
+        .app-card iframe { display: none; width: 100%; height: 100%; border: none; background: white; }
+        .app-card .resize-btn { display: none; }
+
+        /* ESTADO MAXIMIZADO */
+        .app-card.maximized { 
+            position: fixed; top: 0; left: 0; width: 100vw !important; height: 100vh !important; 
+            z-index: 9999; border-radius: 0; cursor: default; transform: none;
+        }
+        .app-card.maximized iframe { display: block; }
+        .app-card.maximized .resize-btn { 
+            display: block; position: absolute; top: 10px; right: 10px; 
+            background: #ef4444; color: white; border: none; padding: 8px 15px; 
+            border-radius: 5px; cursor: pointer; font-weight: bold; z-index: 10000;
+        }
+        .app-card.maximized .app-icon, 
+        .app-card.maximized .app-desc,
+        .app-card.maximized .app-label { display: none; }
+
+        /* Legenda específica para o Shelly Maximizado */
+        #card-shelly.maximized .app-label {
+            display: block;
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(15, 23, 42, 0.9);
+            color: white; font-size: 0.7rem; padding: 5px; text-align: center;
+        }
+
+        /* Utilitários */
+        .app-label { font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; }
         
-        /* ZOOM AUMENTADO NA SHELLY QUANDO MINIMIZADO */
-        #card-shelly .zoom-content { 
-            width: 83.33% !important; /* Inverso de 1.2 para não cortar */
-            height: 83.33% !important; 
-            transform: scale(1.2); 
-            transform-origin: 0 0; 
-        }
-
-        /* ZOOM NORMAL EM OUTROS CARDS QUE USAM ZOOM-OUT */
-        .zoom-out-content { width: 125% !important; height: 125% !important; transform: scale(0.8); transform-origin: 0 0; }
-        
-        /* RESET DE ZOOM AO MAXIMIZAR */
-        .app-card.maximized .zoom-content, 
-        .app-card.maximized .zoom-out-content { 
-            width: 100% !important; height: 100% !important; transform: scale(1) !important; 
-        }
-
-        .app-label { 
-            position: absolute; 
-            bottom: 0; left: 0; right: 0; 
-            background: rgba(15, 23, 42, 0.9); 
-            color: white; 
-            font-size: 0.65rem; 
-            padding: 2px 5px; 
-            text-align: center; 
-            pointer-events: none; 
-            z-index: 20; 
-        }
-
-        /* LEGENDA SHELLY CONDICIONAL */
-        #card-shelly .app-label { display: none; }
-        #card-shelly.maximized .app-label { display: block; }
-
-        .app-card.maximized:not(#card-shelly) .app-label { display: none; }
-
-        .resize-btn { position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.8); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.6rem; z-index: 30; }
-        iframe { width: 100%; height: 100%; border: none; background: white; }
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
@@ -283,9 +258,13 @@
 
     <main class="main-layout">
         <section class="top-priority-apps">
-            <div class="app-card" id="card-shelly" style="display: flex; flex-direction: column;">
-                <button class="resize-btn" onclick="toggleMaximize('card-shelly')">MAX</button>
-                <div class="iframe-wrapper" style="flex: 1;"><iframe src="https://control.shelly.cloud/#/dash/-1" class="zoom-content"></iframe></div>
+            <div class="app-card" id="card-shelly" onclick="toggleMaximize('card-shelly')">
+                <div class="app-icon">☁️</div>
+                <div class="app-desc">SHELLY CLOUD</div>
+                <div class="app-label">Controlo de Portões</div>
+                
+                <button class="resize-btn">FECHAR</button>
+                <iframe data-src="https://control.shelly.cloud/#/dash/-1"></iframe>
                 <div class="shelly-credentials">
                     <span>Email: <strong>operadorbmlcmos@gmail.com</strong></span>
                     <span>Pass: <strong>opBMLcmos1002</strong></span>
@@ -295,113 +274,106 @@
 
             <div class="notes-container">
                 <div class="editor-toolbar">
-                    <button id="btn-bold" onclick="execFormat('bold')" title="Negrito"><b>B</b></button>
-                    <button id="btn-italic" onclick="execFormat('italic')" title="Itálico"><i>I</i></button>
-                    <button id="btn-underline" onclick="execFormat('underline')" title="Sublinhado"><u>U</u></button>
-                    <select onchange="execCmd('fontSize', this.value)">
-                        <option value="4">Pequeno</option>
-                        <option value="5" selected>Normal</option>
-                        <option value="7">Grande</option>
-                    </select>
-                    <input type="color" onchange="execCmd('foreColor', this.value)" title="Cor">
-                    <button class="btn-delete-all" onclick="confirmClearAll()">APAGAR TUDO</button>
+                    <button onclick="document.execCommand('bold')"><b>B</b></button>
+                    <button onclick="document.execCommand('italic')"><i>I</i></button>
+                    <button onclick="document.execCommand('underline')"><u>U</u></button>
+                    <button style="background:#ef4444; color:white; margin-left:auto" onclick="confirmClearAll()">APAGAR</button>
                 </div>
-                <div id="editor" contenteditable="true" oninput="saveNotes()" onkeyup="checkStates()" onclick="checkStates()"></div>
-                <div class="app-label" style="position:relative; background:#1e293b">NOTAS OPERACIONAIS</div>
+                <div id="editor" contenteditable="true" oninput="saveNotes()"></div>
+                <div style="background:#1e293b; color:white; text-align:center; font-size:0.7rem; padding:2px">NOTAS OPERACIONAIS</div>
             </div>
         </section>
 
         <section class="minimized-apps-bar">
-            <div class="app-card" id="card-escala"><button class="resize-btn" onclick="toggleMaximize('card-escala')">MAX</button><iframe src="https://jpleiria.github.io/escala_servico/"></iframe><div class="app-label">ESCALA</div></div>
-            <div class="app-card" id="card-coord"><button class="resize-btn" onclick="toggleMaximize('card-coord')">MAX</button><iframe src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe><div class="app-label">COORDENADAS</div></div>
-            <div class="app-card" id="card-classif"><button class="resize-btn" onclick="toggleMaximize('card-classif')">MAX</button><iframe src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe><div class="app-label">CÓD. OCORRÊNCIAS</div></div>
-            <div class="app-card" id="card-ppi"><button class="resize-btn" onclick="toggleMaximize('card-ppi')">MAX</button><iframe src="https://jpleiria.github.io/ppi_autoestradas/"></iframe><div class="app-label">PPI</div></div>
-            <div class="app-card" id="card-transito"><button class="resize-btn" onclick="toggleMaximize('card-transito')">MAX</button><div class="iframe-wrapper"><iframe src="https://jpleiria.github.io/transito_tempo_real/" class="zoom-out-content"></iframe></div><div class="app-label">TRÂNSITO</div></div>
+            <div class="app-card" id="card-escala" onclick="toggleMaximize('card-escala')">
+                <div class="app-icon">📅</div>
+                <div class="app-desc">ESCALA</div>
+                <button class="resize-btn">FECHAR</button>
+                <iframe data-src="https://jpleiria.github.io/escala_servico/"></iframe>
+            </div>
+
+            <div class="app-card" id="card-coord" onclick="toggleMaximize('card-coord')">
+                <div class="app-icon">📍</div>
+                <div class="app-desc">COORDENADAS</div>
+                <button class="resize-btn">FECHAR</button>
+                <iframe data-src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe>
+            </div>
+
+            <div class="app-card" id="card-classif" onclick="toggleMaximize('card-classif')">
+                <div class="app-icon">🔢</div>
+                <div class="app-desc">CÓDIGOS</div>
+                <button class="resize-btn">FECHAR</button>
+                <iframe data-src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe>
+            </div>
+
+            <div class="app-card" id="card-ppi" onclick="toggleMaximize('card-ppi')">
+                <div class="app-icon">🛣️</div>
+                <div class="app-desc">PPI</div>
+                <button class="resize-btn">FECHAR</button>
+                <iframe data-src="https://jpleiria.github.io/ppi_autoestradas/"></iframe>
+            </div>
+
+            <div class="app-card" id="card-transito" onclick="toggleMaximize('card-transito')">
+                <div class="app-icon">🚗</div>
+                <div class="app-desc">TRÂNSITO</div>
+                <button class="resize-btn">FECHAR</button>
+                <iframe data-src="https://jpleiria.github.io/transito_tempo_real/"></iframe>
+            </div>
         </section>
     </main>
 </div>
 
 <script>
-    // --- FUNÇÕES DO EDITOR ---
-    function execCmd(command, value = null) { document.execCommand(command, false, value); saveNotes(); }
-    function execFormat(cmd) { document.execCommand(cmd, false, null); checkStates(); saveNotes(); }
-    function checkStates() {
-        const states = { 'bold': 'btn-bold', 'italic': 'btn-italic', 'underline': 'btn-underline' };
-        for (let cmd in states) {
-            const btn = document.getElementById(states[cmd]);
-            if (document.queryCommandState(cmd)) btn.classList.add('btn-active');
-            else btn.classList.remove('btn-active');
-        }
-    }
-    function saveNotes() { localStorage.setItem('cbsl_notes', document.getElementById('editor').innerHTML); }
-    function loadNotes() {
-        const saved = localStorage.getItem('cbsl_notes');
-        if (saved) document.getElementById('editor').innerHTML = saved;
-        else document.execCommand('fontSize', false, '5');
-    }
-    function confirmClearAll() {
-        if (confirm("TEM A CERTEZA? Isto vai apagar todas as notas.")) {
-            document.getElementById('editor').innerHTML = "";
-            saveNotes();
-            checkStates();
+    // --- LÓGICA DE MAXIMIZAR ---
+    function toggleMaximize(cardId) {
+        const card = document.getElementById(cardId);
+        const iframe = card.querySelector('iframe');
+        
+        if (card.classList.contains('maximized')) {
+            card.classList.remove('maximized');
+            // Opcional: limpar o src para economizar recursos ao minimizar
+            // iframe.src = ''; 
+        } else {
+            // Se for abrir, carrega o iFrame se o src estiver vazio
+            if (!iframe.src || iframe.src === 'about:blank') {
+                iframe.src = iframe.getAttribute('data-src');
+            }
+            card.classList.add('maximized');
         }
     }
 
-    // --- FUNÇÕES DO DASHBOARD ---
+    // --- RESTANTE DAS FUNÇÕES (NOTAS, ÁUDIO, RELÓGIO) ---
+    function saveNotes() { localStorage.setItem('cbsl_notes', document.getElementById('editor').innerHTML); }
+    function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes') || ''; }
+    function confirmClearAll() { if(confirm("Apagar tudo?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
+
     const activeAudios = {};
     let sectionVolumes = { op: 0.5, ap: 0.5, radio: 0.5 };
-    let lastActiveRadio = null;
     let audioCtx = null;
-    let countdownInterval = null;
 
     const operacionais = [
         { id: 'emergencia_medica', label: 'E. Médica' }, { id: 'acidente_viacao', label: 'Acidente' },
-        { id: 'incendio_urbano', label: 'I. Urbano' }, { id: 'incendio_industrial', label: 'I. Indust.' },
-        { id: 'incendio_florestal', label: 'I. Flor.' }, { id: 'saída_anulada', label: 'Anulada' },
+        { id: 'incendio_urbano', label: 'I. Urbano' }, { id: 'incendio_florestal', label: 'I. Flor.' },
         { id: 'alerta', label: 'Alerta' }
     ];
 
     const apoios = [
-        { id: 'chefe', label: 'Chefe' }, { id: 'rendição', label: 'Rendição' },
-        { id: 'logistica', label: 'Logística' }, { id: 'parque_viaturas', label: 'Parque' },
-        { id: 'troca_turno', label: 'Turno' }
+        { id: 'chefe', label: 'Chefe' }, { id: 'logistica', label: 'Logística' }, { id: 'troca_turno', label: 'Turno' }
     ];
 
     function init() {
         const gridOp = document.getElementById('grid-operacional');
-        operacionais.forEach(item => gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'op')">${item.label}</button>`);
+        operacionais.forEach(item => gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="event.stopPropagation(); playAudio('${item.id}', 'op')">${item.label}</button>`);
         const gridAp = document.getElementById('grid-apoio');
-        apoios.forEach(item => gridAp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'ap')">${item.label}</button>`);
+        apoios.forEach(item => gridAp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="event.stopPropagation(); playAudio('${item.id}', 'ap')">${item.label}</button>`);
         updateClock(); 
         setInterval(updateClock, 1000);
         loadNotes();
     }
 
-    function toggleMaximize(cardId) {
-        const card = document.getElementById(cardId);
-        const btn = card.querySelector('.resize-btn');
-        const iframe = card.querySelector('iframe');
-        if (card.classList.contains('maximized')) {
-            card.classList.remove('maximized');
-            btn.innerText = 'MAX';
-        } else {
-            card.classList.add('maximized');
-            btn.innerText = 'FECHAR';
-            if(iframe && (cardId === 'card-transito' || cardId === 'card-shelly')) {
-               const src = iframe.src; iframe.src = '';
-               setTimeout(() => { iframe.src = src; }, 50);
-            }
-        }
-    }
-
     function updateSectionVolume(section, value) {
         sectionVolumes[section] = parseFloat(value);
         document.getElementById(`txt-vol-${section}`).innerText = Math.round(value * 100) + '%';
-        Object.keys(activeAudios).forEach(id => {
-            if (section === 'radio' && (id === 'comercial' || id === 'rfm')) activeAudios[id].volume = sectionVolumes.radio;
-            else if (section === 'op' && operacionais.find(o => o.id === id)) activeAudios[id].volume = sectionVolumes.op;
-            else if (section === 'ap' && apoios.find(a => a.id === id)) activeAudios[id].volume = sectionVolumes.ap;
-        });
     }
 
     function iniciarAudioContext() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -413,81 +385,27 @@
             activeAudios[id].pause();
             btn.classList.remove('is-playing');
             delete activeAudios[id];
-            checkAndResumeRadio();
             return;
-        }
-        if (section === 'op' || id === 'troca_turno') {
-            if (lastActiveRadio && activeAudios[lastActiveRadio.id]) activeAudios[lastActiveRadio.id].pause();
-            if (countdownInterval) clearInterval(countdownInterval);
-            document.getElementById('silence-timer').innerText = "";
         }
         const audio = new Audio(id + '.mp3');
         audio.volume = sectionVolumes[section];
         btn.classList.add('is-playing');
-        audio.play().catch(e => console.log("Erro áudio:", id));
+        audio.play();
         activeAudios[id] = audio;
-        audio.onended = () => {
-            btn.classList.remove('is-playing');
-            delete activeAudios[id];
-            checkAndResumeRadio();
-        };
-    }
-
-    function checkAndResumeRadio() {
-        const prioritarios = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
-        if (prioritarios.length === 0 && lastActiveRadio) iniciarContagemRetoma();
-    }
-
-    function toggleRadio(id, url, autoResume = false) {
-        iniciarAudioContext();
-        const btn = document.getElementById('btn-' + id);
-        if (activeAudios[id] && !autoResume) {
-            activeAudios[id].pause();
-            delete activeAudios[id]; lastActiveRadio = null;
-            btn.style.background = "#334155"; btn.style.color = "white";
-        } else {
-            const outra = (id === 'comercial') ? 'rfm' : 'comercial';
-            if (activeAudios[outra]) { activeAudios[outra].pause(); delete activeAudios[outra]; document.getElementById('btn-' + outra).style.background = "#334155"; }
-            const radioAudio = new Audio(url);
-            radioAudio.volume = sectionVolumes.radio;
-            radioAudio.play().then(() => {
-                activeAudios[id] = radioAudio; lastActiveRadio = {id, url};
-                btn.style.background = "var(--accent-radio)"; btn.style.color = "black";
-            });
-        }
+        audio.onended = () => { btn.classList.remove('is-playing'); delete activeAudios[id]; };
     }
 
     function stopAllAudios() {
-        if (countdownInterval) clearInterval(countdownInterval);
-        document.getElementById('silence-timer').innerText = "";
         Object.keys(activeAudios).forEach(id => { 
             activeAudios[id].pause();
-            const btn = document.getElementById('btn-' + id);
-            if (btn) btn.classList.remove('is-playing');
-            if (id === 'comercial' || id === 'rfm') { btn.style.background = "#334155"; btn.style.color = "white"; }
+            document.getElementById('btn-' + id)?.classList.remove('is-playing');
             delete activeAudios[id];
         });
-        lastActiveRadio = null;
-    }
-
-    function iniciarContagemRetoma() {
-        if (!lastActiveRadio) return;
-        let timeLeft = 60;
-        if (countdownInterval) clearInterval(countdownInterval);
-        countdownInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
-            if (timeLeft <= 0) { clearInterval(countdownInterval); document.getElementById('silence-timer').innerText = ""; toggleRadio(lastActiveRadio.id, lastActiveRadio.url, true); }
-        }, 1000);
     }
 
     function updateClock() {
         const agora = new Date();
-        const h = agora.getHours(); const m = agora.getMinutes(); const s = agora.getSeconds();
-        if ((h === 8 || h === 20) && m === 0 && s === 0) playAudio('troca_turno', 'ap');
-        const dias = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-        const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        document.getElementById('clock-date').innerText = `${dias[agora.getDay()]}, ${agora.getDate()} ${meses[agora.getMonth()]} ${agora.getFullYear()}`;
+        document.getElementById('clock-date').innerText = agora.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
         document.getElementById('clock-time').innerText = agora.toLocaleTimeString('pt-PT', { hour12: false });
     }
 
