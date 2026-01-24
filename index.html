@@ -92,7 +92,6 @@
             background: #334155; border: 1px solid #475569; color: white; padding: 8px 4px; border-radius: 6px; 
             cursor: pointer; font-size: 0.75rem; font-weight: 600; min-height: 45px; transition: all 0.2s;
         }
-        .btn-audio:hover { background: #475569; }
 
         .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 5px; }
         .is-playing { animation: pulse-alert 0.8s infinite !important; border: 2px solid white !important; }
@@ -116,6 +115,7 @@
             gap: 10px;
         }
 
+        /* EDITOR */
         .notes-container {
             background: #e2e8f0;
             border-radius: 8px;
@@ -125,65 +125,43 @@
             border: 2px solid #334155;
         }
 
-        #editor {
-            flex: 1;
-            padding: 20px;
-            background: white;
-            color: #1e293b;
-            overflow-y: auto;
-            outline: none;
-            font-size: 24px;
-            line-height: 1.4;
+        .editor-toolbar {
+            background: #cbd5e1;
+            padding: 8px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            border-bottom: 1px solid #94a3b8;
         }
 
-        /* SHELLY CONFIG */
+        .editor-toolbar button, .editor-toolbar select, .editor-toolbar input {
+            padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold;
+        }
+
+        #editor {
+            flex: 1; padding: 20px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 24px; line-height: 1.4;
+        }
+
+        /* SHELLY */
         #card-shelly { background: #000; position: relative; }
         .shelly-credentials {
-            background: rgba(15, 23, 42, 0.95);
-            color: white;
-            padding: 5px 10px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            font-family: monospace;
-            border-top: 1px solid #3b82f6;
-            z-index: 21;
+            background: rgba(15, 23, 42, 0.95); color: white; padding: 5px 10px; display: none;
+            flex-direction: column; align-items: center; font-family: monospace; border-top: 1px solid #3b82f6; z-index: 21;
         }
         #card-shelly.maximized .shelly-credentials { display: flex; }
 
         .iframe-container { width: 100%; height: 100%; overflow: hidden; position: relative; flex: 1; }
-        
-        /* ZOOM AUMENTADO NO SHELLY MINIMIZADO */
         #card-shelly iframe {
-            width: 90.9%; height: 90.9%; /* Ajuste para zoom 1.1 */
-            transform: scale(1.1);
-            transform-origin: 0 0;
-            border: none;
-            background: white;
+            width: 90.9%; height: 90.9%; transform: scale(1.1); transform-origin: 0 0; border: none; background: white;
         }
+        #card-shelly.maximized iframe { width: 100%; height: 100%; transform: scale(1); }
 
-        #card-shelly.maximized iframe {
-            width: 100%; height: 100%;
-            transform: scale(1);
-        }
-
-        .minimized-apps-bar {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
+        /* MINIMIZED BAR */
+        .minimized-apps-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 
         .app-card { 
-            background: var(--card-bg); 
-            border-radius: 8px; 
-            overflow: hidden; 
-            position: relative; 
-            border: 2px solid #334155;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            background: var(--card-bg); border-radius: 8px; overflow: hidden; position: relative; 
+            border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
         }
 
         .app-card-iconic .app-icon { font-size: 2rem; margin-bottom: 2px; }
@@ -191,30 +169,22 @@
         .app-card-iconic iframe { display: none; }
 
         .maximized { 
-            position: fixed !important; top: 0 !important; left: 0 !important; 
-            width: 100vw !important; height: 100vh !important; 
-            z-index: 9999 !important; border-radius: 0 !important;
+            position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; 
+            height: 100vh !important; z-index: 9999 !important; border-radius: 0 !important;
         }
         
         .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; transform: scale(1) !important; }
 
         .resize-btn { 
-            position: absolute; top: 5px; right: 5px; 
-            background: rgba(15, 23, 42, 0.8); color: white; 
-            border: none; border-radius: 4px; padding: 4px 8px; 
-            cursor: pointer; font-size: 0.6rem; z-index: 30; 
+            position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.8); 
+            color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.6rem; z-index: 30; 
         }
 
-        .app-card.maximized .resize-btn {
-            background: var(--accent-danger); font-size: 0.8rem; padding: 8px 15px;
-        }
+        .app-card.maximized .resize-btn { background: var(--accent-danger); font-size: 0.8rem; padding: 8px 15px; }
 
         .app-label-shelly {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(15, 23, 42, 0.9);
-            color: white; font-size: 0.65rem; padding: 2px 5px;
-            text-align: center; pointer-events: none; z-index: 20;
-            display: none;
+            position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.9);
+            color: white; font-size: 0.65rem; padding: 2px 5px; text-align: center; pointer-events: none; z-index: 20; display: none;
         }
         #card-shelly.maximized .app-label-shelly { display: block; }
 
@@ -245,28 +215,19 @@
         
         <div class="category-group">
             <span class="category-title">🚨 Operacional</span>
-            <div class="inline-volume">
-                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('op', this.value)">
-                <span class="volume-pct" id="txt-vol-op">50%</span>
-            </div>
+            <div class="inline-volume"><input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('op', this.value)"><span class="volume-pct" id="txt-vol-op">50%</span></div>
             <div class="button-grid" id="grid-operacional"></div>
         </div>
 
         <div class="category-group">
             <span class="category-title">📞 Apoio</span>
-            <div class="inline-volume">
-                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('ap', this.value)">
-                <span class="volume-pct" id="txt-vol-ap">50%</span>
-            </div>
+            <div class="inline-volume"><input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('ap', this.value)"><span class="volume-pct" id="txt-vol-ap">50%</span></div>
             <div class="button-grid" id="grid-apoio"></div>
         </div>
 
         <div class="category-group">
             <span class="category-title">📻 Rádios</span>
-            <div class="inline-volume">
-                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('radio', this.value)">
-                <span class="volume-pct" id="txt-vol-radio">50%</span>
-            </div>
+            <div class="inline-volume"><input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('radio', this.value)"><span class="volume-pct" id="txt-vol-radio">50%</span></div>
             <div class="button-grid">
                 <button class="btn-audio" id="btn-comercial" onclick="toggleRadio('comercial', 'https://stream-icy.bauermedia.pt/comercial.aac')">COMERCIAL</button>
                 <button class="btn-audio" id="btn-rfm" onclick="toggleRadio('rfm', 'https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC')">RFM</button>
@@ -277,7 +238,7 @@
     <main class="main-layout">
         <section class="top-priority-apps">
             <div class="app-card" id="card-shelly">
-                <button class="resize-btn" onclick="toggleMaximize('card-shelly')">MAX</button>
+                <button class="resize-btn" onclick="toggleMaximize('card-shelly')">ABRIR</button>
                 <div class="iframe-container">
                     <iframe src="https://control.shelly.cloud/#/dash/-1"></iframe>
                 </div>
@@ -289,8 +250,16 @@
             </div>
 
             <div class="notes-container">
-                <div style="background:#cbd5e1; padding:5px; display:flex; gap:5px">
-                    <button onclick="document.execCommand('bold')"><b>B</b></button>
+                <div class="editor-toolbar">
+                    <button onclick="document.execCommand('bold')">B</button>
+                    <button onclick="document.execCommand('italic')">I</button>
+                    <button onclick="document.execCommand('underline')">U</button>
+                    <select onchange="document.execCommand('fontSize', false, this.value)">
+                        <option value="3">Pequeno</option>
+                        <option value="5" selected>Normal</option>
+                        <option value="7">Grande</option>
+                    </select>
+                    <input type="color" onchange="document.execCommand('foreColor', false, this.value)">
                     <button style="background:#ef4444; color:white; margin-left:auto" onclick="confirmClearAll()">APAGAR</button>
                 </div>
                 <div id="editor" contenteditable="true" oninput="saveNotes()"></div>
@@ -301,31 +270,27 @@
         <section class="minimized-apps-bar">
             <div class="app-card app-card-iconic" id="card-escala" onclick="toggleMaximize('card-escala')">
                 <div class="app-icon">📅</div><div class="app-desc">ESCALA</div>
-                <button class="resize-btn">FECHAR</button>
+                <button class="resize-btn">ABRIR</button>
                 <iframe data-src="https://jpleiria.github.io/escala_servico/"></iframe>
             </div>
-
             <div class="app-card app-card-iconic" id="card-coord" onclick="toggleMaximize('card-coord')">
                 <div class="app-icon">📍</div><div class="app-desc">COORDENADAS</div>
-                <button class="resize-btn">FECHAR</button>
+                <button class="resize-btn">ABRIR</button>
                 <iframe data-src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe>
             </div>
-
             <div class="app-card app-card-iconic" id="card-classif" onclick="toggleMaximize('card-classif')">
                 <div class="app-icon">🔢</div><div class="app-desc">CÓDIGOS</div>
-                <button class="resize-btn">FECHAR</button>
+                <button class="resize-btn">ABRIR</button>
                 <iframe data-src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe>
             </div>
-
             <div class="app-card app-card-iconic" id="card-ppi" onclick="toggleMaximize('card-ppi')">
                 <div class="app-icon">🛣️</div><div class="app-desc">PPI</div>
-                <button class="resize-btn">FECHAR</button>
+                <button class="resize-btn">ABRIR</button>
                 <iframe data-src="https://jpleiria.github.io/ppi_autoestradas/"></iframe>
             </div>
-
             <div class="app-card app-card-iconic" id="card-transito" onclick="toggleMaximize('card-transito')">
                 <div class="app-icon">🚗</div><div class="app-desc">TRÂNSITO</div>
-                <button class="resize-btn">FECHAR</button>
+                <button class="resize-btn">ABRIR</button>
                 <iframe data-src="https://jpleiria.github.io/transito_tempo_real/"></iframe>
             </div>
         </section>
@@ -335,48 +300,38 @@
 <script>
     const activeAudios = {};
     let sectionVolumes = { op: 0.5, ap: 0.5, radio: 0.5 };
+    let lastActiveRadio = null;
     let audioCtx = null;
+    let countdownInterval = null;
 
     const operacionais = [
-        { id: 'emergencia_medica', label: 'E. Médica' },
-        { id: 'acidente_viacao', label: 'Acidente' },
-        { id: 'incendio_urbano', label: 'I. Urbano' },
-        { id: 'incendio_industrial', label: 'I. Indust.' },
-        { id: 'incendio_florestal', label: 'I. Flor.' },
-        { id: 'saída_anulada', label: 'Anulada' },
-        { id: 'alerta', label: 'Alerta' }
+        { id: 'emergencia_medica', label: 'E. Médica' }, { id: 'acidente_viacao', label: 'Acidente' },
+        { id: 'incendio_urbano', label: 'I. Urbano' }, { id: 'incendio_industrial', label: 'I. Indust.' },
+        { id: 'incendio_florestal', label: 'I. Flor.' }, { id: 'saída_anulada', label: 'Anulada' }, { id: 'alerta', label: 'Alerta' }
     ];
 
     const apoios = [
-        { id: 'chefe', label: 'Chefe' },
-        { id: 'rendição', label: 'Rendição' },
-        { id: 'logistica', label: 'Logística' },
-        { id: 'parque_viaturas', label: 'Parque' },
-        { id: 'troca_turno', label: 'Turno' }
+        { id: 'chefe', label: 'Chefe' }, { id: 'rendição', label: 'Rendição' },
+        { id: 'logistica', label: 'Logística' }, { id: 'parque_viaturas', label: 'Parque' }, { id: 'troca_turno', label: 'Turno' }
     ];
 
     function init() {
         const gridOp = document.getElementById('grid-operacional');
         operacionais.forEach(item => gridOp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'op')">${item.label}</button>`);
-        
         const gridAp = document.getElementById('grid-apoio');
         apoios.forEach(item => gridAp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'ap')">${item.label}</button>`);
-        
-        updateClock(); 
-        setInterval(updateClock, 1000);
-        loadNotes();
+        updateClock(); setInterval(updateClock, 1000); loadNotes();
     }
 
     function toggleMaximize(cardId) {
         const card = document.getElementById(cardId);
         const iframe = card.querySelector('iframe');
         const btn = card.querySelector('.resize-btn');
-        
         if (card.classList.contains('maximized')) {
             card.classList.remove('maximized');
-            btn.innerText = 'MAX';
+            btn.innerText = 'ABRIR';
         } else {
-            if (iframe.hasAttribute('data-src')) {
+            if (iframe && iframe.hasAttribute('data-src')) {
                 iframe.src = iframe.getAttribute('data-src');
                 iframe.removeAttribute('data-src');
             }
@@ -385,42 +340,86 @@
         }
     }
 
-    function saveNotes() { localStorage.setItem('cbsl_notes', document.getElementById('editor').innerHTML); }
-    function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes') || ''; }
-    function confirmClearAll() { if(confirm("Apagar notas?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
+    function playAudio(id, section) {
+        iniciarAudioContext();
+        const btn = document.getElementById('btn-' + id);
+        if (activeAudios[id]) { activeAudios[id].pause(); btn.classList.remove('is-playing'); delete activeAudios[id]; checkAndResumeRadio(); return; }
+        
+        if (section === 'op' || id === 'troca_turno') {
+            if (lastActiveRadio && activeAudios[lastActiveRadio.id]) activeAudios[lastActiveRadio.id].pause();
+            if (countdownInterval) clearInterval(countdownInterval);
+            document.getElementById('silence-timer').innerText = "";
+        }
+
+        const audio = new Audio(id + '.mp3');
+        audio.volume = sectionVolumes[section];
+        btn.classList.add('is-playing');
+        audio.play();
+        activeAudios[id] = audio;
+        audio.onended = () => { btn.classList.remove('is-playing'); delete activeAudios[id]; checkAndResumeRadio(); };
+    }
+
+    function toggleRadio(id, url, autoResume = false) {
+        iniciarAudioContext();
+        const btn = document.getElementById('btn-' + id);
+        if (activeAudios[id] && !autoResume) {
+            activeAudios[id].pause(); delete activeAudios[id]; lastActiveRadio = null;
+            btn.style.background = "#334155"; btn.style.color = "white";
+        } else {
+            const outra = (id === 'comercial') ? 'rfm' : 'comercial';
+            if (activeAudios[outra]) { activeAudios[outra].pause(); delete activeAudios[outra]; document.getElementById('btn-' + outra).style.background = "#334155"; }
+            const radioAudio = new Audio(url);
+            radioAudio.volume = sectionVolumes.radio;
+            radioAudio.play().then(() => {
+                activeAudios[id] = radioAudio; lastActiveRadio = {id, url};
+                btn.style.background = "var(--accent-radio)"; btn.style.color = "black";
+            });
+        }
+    }
+
+    function checkAndResumeRadio() {
+        const prioritarios = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
+        if (prioritarios.length === 0 && lastActiveRadio) {
+            let timeLeft = 60;
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
+                if (timeLeft <= 0) { 
+                    clearInterval(countdownInterval); 
+                    document.getElementById('silence-timer').innerText = ""; 
+                    toggleRadio(lastActiveRadio.id, lastActiveRadio.url, true); 
+                }
+            }, 1000);
+        }
+    }
+
+    function stopAllAudios() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById('silence-timer').innerText = "";
+        Object.keys(activeAudios).forEach(id => { 
+            activeAudios[id].pause();
+            const btn = document.getElementById('btn-' + id);
+            if (btn) {
+                btn.classList.remove('is-playing');
+                if (id === 'comercial' || id === 'rfm') { btn.style.background = "#334155"; btn.style.color = "white"; }
+            }
+            delete activeAudios[id];
+        });
+        lastActiveRadio = null;
+    }
 
     function updateSectionVolume(section, value) {
         sectionVolumes[section] = parseFloat(value);
         document.getElementById(`txt-vol-${section}`).innerText = Math.round(value * 100) + '%';
-        // Atualizar volume de áudios em execução se necessário
+        if(activeAudios['comercial']) activeAudios['comercial'].volume = sectionVolumes.radio;
+        if(activeAudios['rfm']) activeAudios['rfm'].volume = sectionVolumes.radio;
     }
 
     function iniciarAudioContext() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-
-    function playAudio(id, section) {
-        iniciarAudioContext();
-        const btn = document.getElementById('btn-' + id);
-        if (activeAudios[id]) { 
-            activeAudios[id].pause(); 
-            btn.classList.remove('is-playing'); 
-            delete activeAudios[id]; 
-            return; 
-        }
-        const audio = new Audio(id + '.mp3');
-        audio.volume = sectionVolumes[section];
-        btn.classList.add('is-playing');
-        audio.play().catch(e => console.log("Erro ao tocar:", id));
-        activeAudios[id] = audio;
-        audio.onended = () => { btn.classList.remove('is-playing'); delete activeAudios[id]; };
-    }
-
-    function stopAllAudios() {
-        Object.keys(activeAudios).forEach(id => { 
-            activeAudios[id].pause();
-            document.getElementById('btn-' + id)?.classList.remove('is-playing');
-            delete activeAudios[id];
-        });
-    }
+    function saveNotes() { localStorage.setItem('cbsl_notes', document.getElementById('editor').innerHTML); }
+    function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes') || ''; }
+    function confirmClearAll() { if(confirm("Apagar notas?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
 
     function updateClock() {
         const agora = new Date();
