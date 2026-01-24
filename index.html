@@ -135,7 +135,13 @@
 
         .editor-toolbar button, .editor-toolbar select, .editor-toolbar input {
             padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold; height: 32px;
+            min-width: 35px;
         }
+
+        /* Estilos específicos para os botões de formatação */
+        #btn-bold { font-weight: 900 !important; font-size: 1.1rem; }
+        #btn-italic { font-style: italic !important; font-family: "Times New Roman", serif; font-size: 1.1rem; }
+        #btn-underline { text-decoration: underline !important; font-size: 1.1rem; }
 
         .btn-active { background: var(--accent-primary) !important; color: white !important; }
 
@@ -168,7 +174,6 @@
         .app-card-iconic .app-desc { font-size: 0.75rem; font-weight: bold; line-height: 1.2; text-transform: uppercase; }
         .app-card-iconic iframe { display: none; }
 
-        /* Esconde o botão visualmente na barra inferior */
         .minimized-apps-bar .resize-btn { display: none; }
 
         .maximized { 
@@ -308,7 +313,6 @@
 </div>
 
 <script>
-    // [A lógica do script permanece exatamente a mesma do anterior]
     const activeAudios = {};
     let sectionVolumes = { op: 0.5, ap: 0.5, radio: 0.5 };
     let lastActiveRadio = null;
