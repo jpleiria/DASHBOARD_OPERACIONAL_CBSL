@@ -135,7 +135,13 @@
         }
 
         .editor-toolbar button, .editor-toolbar select, .editor-toolbar input {
-            padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold;
+            padding: 6px; cursor: pointer; border: 1px solid #94a3b8; background: white; border-radius: 4px; font-weight: bold; height: 32px;
+        }
+
+        .btn-active {
+            background: var(--accent-primary) !important;
+            color: white !important;
+            border-color: #1d4ed8 !important;
         }
 
         #editor {
@@ -168,12 +174,16 @@
         .app-card-iconic .app-desc { font-size: 0.8rem; font-weight: bold; }
         .app-card-iconic iframe { display: none; }
 
+        /* MAXIMIZED ADJUSTMENTS */
         .maximized { 
             position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; 
             height: 100vh !important; z-index: 9999 !important; border-radius: 0 !important;
         }
         
         .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; transform: scale(1) !important; }
+
+        /* Esconder ícone e descrição ao maximizar */
+        .maximized .app-icon, .maximized .app-desc, .maximized .app-label { display: none !important; }
 
         .resize-btn { 
             position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.8); 
@@ -251,18 +261,18 @@
 
             <div class="notes-container">
                 <div class="editor-toolbar">
-                    <button onclick="document.execCommand('bold')">B</button>
-                    <button onclick="document.execCommand('italic')">I</button>
-                    <button onclick="document.execCommand('underline')">U</button>
-                    <select onchange="document.execCommand('fontSize', false, this.value)">
+                    <button id="btn-bold" onclick="execFormat('bold')">B</button>
+                    <button id="btn-italic" onclick="execFormat('italic')">I</button>
+                    <button id="btn-underline" onclick="execFormat('underline')">U</button>
+                    <select onchange="execCmd('fontSize', this.value)">
                         <option value="3">Pequeno</option>
                         <option value="5" selected>Normal</option>
                         <option value="7">Grande</option>
                     </select>
-                    <input type="color" onchange="document.execCommand('foreColor', false, this.value)">
+                    <input type="color" onchange="execCmd('foreColor', this.value)">
                     <button style="background:#ef4444; color:white; margin-left:auto" onclick="confirmClearAll()">APAGAR</button>
                 </div>
-                <div id="editor" contenteditable="true" oninput="saveNotes()"></div>
+                <div id="editor" contenteditable="true" oninput="saveNotes()" onkeyup="checkStates()" onclick="checkStates()"></div>
                 <div style="background:#1e293b; color:white; text-align:center; font-size:0.7rem; padding:2px">NOTAS OPERACIONAIS</div>
             </div>
         </section>
@@ -321,6 +331,18 @@
         const gridAp = document.getElementById('grid-apoio');
         apoios.forEach(item => gridAp.innerHTML += `<button class="btn-audio" id="btn-${item.id}" onclick="playAudio('${item.id}', 'ap')">${item.label}</button>`);
         updateClock(); setInterval(updateClock, 1000); loadNotes();
+    }
+
+    /* EDITOR FUNCTIONS */
+    function execCmd(command, value = null) { document.execCommand(command, false, value); saveNotes(); }
+    function execFormat(cmd) { document.execCommand(cmd, false, null); checkStates(); saveNotes(); }
+    function checkStates() {
+        const states = { 'bold': 'btn-bold', 'italic': 'btn-italic', 'underline': 'btn-underline' };
+        for (let cmd in states) {
+            const btn = document.getElementById(states[cmd]);
+            if (document.queryCommandState(cmd)) btn.classList.add('btn-active');
+            else btn.classList.remove('btn-active');
+        }
     }
 
     function toggleMaximize(cardId) {
