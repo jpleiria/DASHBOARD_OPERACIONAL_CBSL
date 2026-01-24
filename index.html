@@ -161,13 +161,14 @@
         .app-card { 
             background: var(--card-bg); border-radius: 8px; overflow: hidden; position: relative; 
             border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
+            text-align: center;
         }
 
-        .app-card-iconic .app-icon { font-size: 2rem; margin-bottom: 2px; }
-        .app-card-iconic .app-desc { font-size: 0.8rem; font-weight: bold; }
+        .app-card-iconic .app-icon { font-size: 1.8rem; margin-bottom: 5px; }
+        .app-card-iconic .app-desc { font-size: 0.75rem; font-weight: bold; line-height: 1.2; text-transform: uppercase; }
         .app-card-iconic iframe { display: none; }
 
-        /* Esconde o botão visualmente na barra inferior, mas mantém para fechar quando maximizado */
+        /* Esconde o botão visualmente na barra inferior */
         .minimized-apps-bar .resize-btn { display: none; }
 
         .maximized { 
@@ -181,7 +182,7 @@
         .resize-btn { 
             position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.8); 
             color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.6rem; z-index: 30; 
-            pointer-events: none; /* O clique passa para o card pai */
+            pointer-events: none;
         }
 
         .app-card.maximized .resize-btn { 
@@ -189,7 +190,7 @@
             background: var(--accent-danger); 
             font-size: 0.8rem; 
             padding: 8px 15px; 
-            pointer-events: auto; /* Reativa o clique para poder fechar */
+            pointer-events: auto;
         }
 
         .app-label-shelly {
@@ -278,27 +279,27 @@
 
         <section class="minimized-apps-bar">
             <div class="app-card app-card-iconic" id="card-escala" onclick="toggleMaximize('card-escala')">
-                <div class="app-icon">📅</div><div class="app-desc">ESCALA DIÁRIA</div>
+                <div class="app-icon">📅</div><div class="app-desc">ESCALA<br>DIÁRIA</div>
                 <button class="resize-btn"></button>
                 <iframe data-src="https://jpleiria.github.io/escala_servico/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-coord" onclick="toggleMaximize('card-coord')">
-                <div class="app-icon">📍</div><div class="app-desc">CONVERSOR COORDENADAS SIRESP</div>
+                <div class="app-icon">📍</div><div class="app-desc">CONVERSOR<br>COORDENADAS SIRESP</div>
                 <button class="resize-btn"></button>
                 <iframe data-src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-classif" onclick="toggleMaximize('card-classif')">
-                <div class="app-icon">🔢</div><div class="app-desc">CLASSIFICAÇÕES OCORRÊNCIAS</div>
+                <div class="app-icon">🔢</div><div class="app-desc">CLASSIFICAÇÕES<br>OCORRÊNCIAS</div>
                 <button class="resize-btn"></button>
                 <iframe data-src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-ppi" onclick="toggleMaximize('card-ppi')">
-                <div class="app-icon">🛣️</div><div class="app-desc">PPI AUTOESTRADAS</div>
+                <div class="app-icon">🛣️</div><div class="app-desc">PPI<br>AUTOESTRADAS</div>
                 <button class="resize-btn"></button>
                 <iframe data-src="https://jpleiria.github.io/ppi_autoestradas/"></iframe>
             </div>
             <div class="app-card app-card-iconic" id="card-transito" onclick="toggleMaximize('card-transito')">
-                <div class="app-icon">🚗</div><div class="app-desc">TRÂNSITO -LIVE</div>
+                <div class="app-icon">🚗</div><div class="app-desc">TRÂNSITO<br>LIVE</div>
                 <button class="resize-btn"></button>
                 <iframe data-src="https://jpleiria.github.io/transito_tempo_real/"></iframe>
             </div>
@@ -307,6 +308,7 @@
 </div>
 
 <script>
+    // [A lógica do script permanece exatamente a mesma do anterior]
     const activeAudios = {};
     let sectionVolumes = { op: 0.5, ap: 0.5, radio: 0.5 };
     let lastActiveRadio = null;
