@@ -123,11 +123,12 @@
             position: relative;
         }
 
+        /* Shelly e Escala REDUZIDOS para 50% */
         .top-priority-apps {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             gap: 8px;
-            height: 60%; 
+            height: 50%; 
             flex-shrink: 0;
         }
 
@@ -135,7 +136,6 @@
             background: #000; border-radius: 8px; overflow: hidden; border: 2px solid #334155; height: 100%; position: relative;
         }
 
-        /* ZOOM SHELLY */
         #card-shelly iframe { 
             width: 80%; 
             height: 80%; 
@@ -169,16 +169,18 @@
         .cred-row input { background: transparent; border: none; color: white; font-family: monospace; font-size: 0.9rem; width: 220px; outline: none; }
         .copy-btn { background: var(--accent-primary); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
 
+        /* Informações Fixas AUMENTADAS */
         .info-estatica-container {
             background: var(--card-bg);
             border: 2px solid #334155;
             border-radius: 8px;
             padding: 12px;
-            height: 120px; 
+            height: 180px; /* Aumentado de 120px */
             overflow-y: auto;
             flex-shrink: 0;
         }
 
+        /* Secção Inferior REDUZIDA */
         .bottom-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -309,7 +311,7 @@
         </section>
 
         <section class="info-estatica-container">
-            <span class="info-estatica-title" style="color:var(--accent-radio); font-weight:bold; font-size:0.75rem; border-bottom:1px solid #334155; display:block; margin-bottom:5px;">Informações Fixas / Avisos</span>
+            <span class="info-estatica-title" style="color:var(--accent-radio); font-weight:bold; font-size:0.75rem; border-bottom:1px solid #334155; display:block; margin-bottom:5px;">Informações / Avisos</span>
             <div id="conteudo-estatico" class="info-estatica-content" style="font-size:1rem; color:var(--text-main); line-height:1.4;">
                 A carregar informações da Folha de Cálculo...
             </div>
@@ -319,27 +321,27 @@
             <section class="cards-grid-3x3">
                 <div class="app-card" id="card-coord" onclick="toggleMaximize('card-coord')">
                     <button class="close-btn-max">VOLTAR</button>
-                    <div class="app-icon">📍</div><div class="app-desc">COORDENADAS</div>
+                    <div class="app-icon">📍</div><div class="app-desc">CONVERSOR<br>COORDENADAS</div>
                     <iframe data-src="https://jpleiria.github.io/conversor_coordenadas_siresp/"></iframe>
                 </div>
                 <div class="app-card" id="card-classif" onclick="toggleMaximize('card-classif')">
                     <button class="close-btn-max">VOLTAR</button>
-                    <div class="app-icon">🔢</div><div class="app-desc">CLASSIFICAÇÃO</div>
+                    <div class="app-icon">🔢</div><div class="app-desc">CLASSIFICAÇÃO<br>OCORRÊNCIAS</div>
                     <iframe data-src="https://jpleiria.github.io/codigos_ocorrencias/"></iframe>
                 </div>
                 <div class="app-card" id="card-ppi" onclick="toggleMaximize('card-ppi')">
                     <button class="close-btn-max">VOLTAR</button>
-                    <div class="app-icon">🛣️</div><div class="app-desc">PPI</div>
+                    <div class="app-icon">🛣️</div><div class="app-desc">PPI<br>AUTOESTRADAS</div>
                     <iframe data-src="https://jpleiria.github.io/ppi_autoestradas/"></iframe>
                 </div>
                 <div class="app-card" id="card-transito" onclick="toggleMaximize('card-transito')">
                     <button class="close-btn-max">VOLTAR</button>
-                    <div class="app-icon">🚗</div><div class="app-desc">TRÂNSITO</div>
+                    <div class="app-icon">🚗</div><div class="app-desc">TRÂNSITO<br>LIVE</div>
                     <iframe data-src="https://jpleiria.github.io/transito_tempo_real/"></iframe>
                 </div>
                 <div class="app-card" id="card-blackline" onclick="toggleMaximize('card-blackline')">
                     <button class="close-btn-max">VOLTAR</button>
-                    <div class="app-icon">🛡️</div><div class="app-desc">BLACKLINE</div>
+                    <div class="app-icon">🛡️</div><div class="app-desc">APARELHOS DETEÇÃO<br>MULTIGÁS</div>
                     <iframe data-src="https://eu.live.blacklinesafety.com/sign-in"></iframe>
                 </div>
                 <div class="app-card" style="border-style: dashed; opacity: 0.3; cursor: default;">
@@ -370,59 +372,30 @@
     let lastActiveRadio = null;
     let countdownInterval = null;
 
-    // FUNÇÃO PARA CARREGAR DADOS DO GOOGLE SHEETS
     async function carregarInfoGoogle() {
         const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTSxSKqdt8O2nHhGdhbPkoG4z9yNnNNAolaHAqGn3Vn4wdgICPEJ3PKTxY-Ra8mYahwSjKHGCfFVjcb/pub?gid=0&single=true&output=csv'; 
         try {
-            const resposta = await fetch(url);
+            const resposta = await fetch(url + '&t=' + new Date().getTime());
+            if (!resposta.ok) throw new Error('Falha na resposta');
             const texto = await resposta.text();
-            
-            // Divide o texto por linhas e remove as aspas que o Google coloca no CSV
-            const linhas = texto.split('\n');
+            const linhas = texto.split(/\r?\n/);
             const htmlFinal = linhas
-                .filter(linha => linha.trim() !== "")
-                .map(linha => `• ${linha.replace(/"/g, "")}<br>`)
+                .map(linha => linha.replace(/^"|"$/g, '').trim()) 
+                .filter(linha => linha !== "")
+                .map(linha => `• ${linha}<br>`)
                 .join('');
-            
-            document.getElementById('conteudo-estatico').innerHTML = htmlFinal;
+            document.getElementById('conteudo-estatico').innerHTML = htmlFinal || "Nenhum aviso disponível.";
         } catch (erro) {
             console.error("Erro ao carregar dados do Google:", erro);
-            document.getElementById('conteudo-estatico').innerText = "Erro ao carregar avisos.";
+            document.getElementById('conteudo-estatico').innerHTML = "<span style='color:red;'>Erro ao carregar avisos da nuvem. Verifique a ligação.</span>";
         }
     }
 
-    function execCmd(c, v=null) { 
-        document.execCommand(c, false, v); 
-        updateToolbar();
-        saveNotes(); 
-    }
-    
-    function updateToolbar() {
-        const isBold = document.queryCommandState('bold');
-        document.getElementById('btn-bold').classList.toggle('active', isBold);
-    }
-
-    function clearNotes() { 
-        if(confirm("Apagar todas as notas?")) { 
-            document.getElementById('editor').innerHTML = ""; 
-            saveNotes(); 
-        } 
-    }
-
-    function copyText(id) { 
-        const el = document.getElementById(id); 
-        el.select(); 
-        document.execCommand('copy'); 
-        const btn = el.nextElementSibling;
-        btn.innerText = "COPIADO!";
-        btn.style.background = "#10b981";
-        setTimeout(() => { btn.innerText = "COPIAR"; btn.style.background = "var(--accent-primary)"; }, 2000);
-    }
-
-    function handleCardClick(e, id) {
-        const card = document.getElementById(id);
-        if (!card.classList.contains('maximized')) toggleMaximize(id, e);
-    }
+    function execCmd(c, v=null) { document.execCommand(c, false, v); updateToolbar(); saveNotes(); }
+    function updateToolbar() { const isBold = document.queryCommandState('bold'); document.getElementById('btn-bold').classList.toggle('active', isBold); }
+    function clearNotes() { if(confirm("Apagar todas as notas?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
+    function copyText(id) { const el = document.getElementById(id); el.select(); document.execCommand('copy'); const btn = el.nextElementSibling; btn.innerText = "COPIADO!"; btn.style.background = "#10b981"; setTimeout(() => { btn.innerText = "COPIAR"; btn.style.background = "var(--accent-primary)"; }, 2000); }
+    function handleCardClick(e, id) { const card = document.getElementById(id); if (!card.classList.contains('maximized')) toggleMaximize(id, e); }
 
     function toggleMaximize(id, e) {
         if(e) e.stopPropagation();
@@ -454,11 +427,9 @@
     window.onload = () => {
         operacionais.forEach(i => document.getElementById('grid-operacional').innerHTML += `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`);
         apoios.forEach(i => document.getElementById('grid-apoio').innerHTML += `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`);
-        updateClock(); 
-        setInterval(updateClock, 1000); 
-        loadNotes();
-        carregarInfoGoogle(); // Carrega avisos ao iniciar
-        setInterval(carregarInfoGoogle, 300000); // Verifica novos avisos a cada 5 min
+        updateClock(); setInterval(updateClock, 1000); loadNotes();
+        carregarInfoGoogle();
+        setInterval(carregarInfoGoogle, 300000); 
     };
 
     function playAudio(id, section) {
