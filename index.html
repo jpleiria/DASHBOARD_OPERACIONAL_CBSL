@@ -381,7 +381,7 @@
                 .filter(linha => linha !== "")
                 .map(linha => `• ${linha}<br>`)
                 .join('');
-            document.getElementById('conteudo-estatico').innerHTML = htmlFinal || "Nenhum aviso disponível.";
+            document.getElementById('conteudo-estatico').innerHTML = htmlFinal || "Nenhuma informação/aviso disponível.";
         } catch (erro) {
             console.error("Erro ao carregar dados do Google:", erro);
             document.getElementById('conteudo-estatico').innerHTML = "<span style='color:red;'>Erro ao carregar avisos da nuvem. Verifique a ligação.</span>";
