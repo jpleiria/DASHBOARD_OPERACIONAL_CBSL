@@ -212,7 +212,7 @@
         .toolbar-btn.btn-delete { background: var(--accent-danger); margin-left: auto; font-weight: bold; }
         .toolbar-btn.active { background: var(--accent-primary); }
 
-        #editor { flex: 1; padding: 10px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 14px; }
+        #editor { flex: 1; padding: 10px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 22px; } /* <--- alterar o tamanho da letra no bloco de notas */
 
         .app-card { 
             background: var(--card-bg); border-radius: 8px; overflow: hidden; position: relative; 
@@ -347,18 +347,13 @@
             </section>
 
             <section class="notes-container">
-                <div class="notes-toolbar">
-                    <button class="toolbar-btn" id="btn-bold" onclick="execCmd('bold')"><b>B</b></button>
-                    <select class="toolbar-btn" onchange="execCmd('fontSize', this.value)" style="background:#334155; color:white;">
-                        <option value="3">Pequeno</option>
-                        <option value="5">Médio</option>
-                        <option value="7">Grande</option>
-                    </select>
-                    <input type="color" onchange="execCmd('foreColor', this.value)" style="width:30px; height:24px; border:none; padding:0; background:none; cursor:pointer;">
-                    <button class="toolbar-btn btn-delete" onclick="clearNotes()">APAGAR TUDO</button>
-                </div>
-                <div id="editor" contenteditable="true" oninput="saveNotes()" onkeyup="updateToolbar()" onclick="updateToolbar()"></div>
-            </section>
+    <div class="notes-toolbar">
+        <button class="toolbar-btn" id="btn-bold" onclick="execCmd('bold')" style="width: 40px; font-size: 1rem;"><b>B</b></button>
+        <input type="color" onchange="execCmd('foreColor', this.value)" title="Cor da Fonte" style="width:30px; height:24px; border:none; padding:0; background:none; cursor:pointer;">
+        <button class="toolbar-btn btn-delete" onclick="clearNotes()">APAGAR TUDO</button>
+    </div>
+    <div id="editor" contenteditable="true" oninput="saveNotes()" onkeyup="updateToolbar()" onclick="updateToolbar()"></div>
+</section>
         </div>
     </main>
 </div>
@@ -388,7 +383,35 @@
         }
     }
 
-    function execCmd(c, v=null) { document.execCommand(c, false, v); updateToolbar(); saveNotes(); }
+    // Função genérica para Negrito e outras funções simples
+function execCmd(c, v=null) { 
+    document.execCommand(c, false, v); 
+    updateToolbar(); 
+    saveNotes(); 
+}
+
+// Nova função específica para o Tamanho da Fonte
+function alterarTamanhoFonte(tamanho) {
+    const selecao = window.getSelection();
+    if (!selecao.rangeCount) return;
+
+    // 1. Ativa o uso de CSS em vez de tags <font>
+    document.execCommand('styleWithCSS', false, true);
+    
+    // 2. Aplica o comando de tamanho (o valor "7" é apenas um gatilho)
+    document.execCommand('fontSize', false, "7");
+    
+    // 3. Substitui o que o browser criou pelo tamanho real em pixels
+    const spans = document.getElementById('editor').querySelectorAll('span');
+    spans.forEach(span => {
+        if (span.style.fontSize === 'xxx-large' || span.getAttribute('size') === '7') {
+            span.removeAttribute('size');
+            span.style.fontSize = tamanho;
+        }
+    });
+
+    saveNotes();
+}
     function updateToolbar() { const isBold = document.queryCommandState('bold'); document.getElementById('btn-bold').classList.toggle('active', isBold); }
     function clearNotes() { if(confirm("Apagar todas as notas?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
     function copyText(id) { const el = document.getElementById(id); el.select(); document.execCommand('copy'); const btn = el.nextElementSibling; btn.innerText = "COPIADO!"; btn.style.background = "#10b981"; setTimeout(() => { btn.innerText = "COPIAR"; btn.style.background = "var(--accent-primary)"; }, 2000); }
