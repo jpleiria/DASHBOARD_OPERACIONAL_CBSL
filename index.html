@@ -47,10 +47,10 @@
             background: rgba(0, 0, 0, 0.3);
             padding: 2px 10px;
             border-radius: 6px;
-            gap: 10px;
+            gap: 15px;
         }
 
-        #clock-date { font-size: 0.8rem; color: var(--text-dim); text-transform: capitalize; }
+        #clock-date { font-size: 0.9rem; color: var(--text-dim); text-transform: capitalize; font-weight: 500; }
         #clock-time { font-size: 1.3rem; color: #ffffff; font-weight: 800; font-family: 'Courier New', monospace; }
 
         .dashboard-container { 
@@ -123,7 +123,6 @@
             position: relative;
         }
 
-        /* Shelly e Escala REDUZIDOS para 50% */
         .top-priority-apps {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -169,18 +168,16 @@
         .cred-row input { background: transparent; border: none; color: white; font-family: monospace; font-size: 0.9rem; width: 220px; outline: none; }
         .copy-btn { background: var(--accent-primary); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
 
-        /* Informações Fixas AUMENTADAS */
         .info-estatica-container {
             background: var(--card-bg);
             border: 2px solid #334155;
             border-radius: 8px;
             padding: 12px;
-            height: 300px; /* Aumentado de 120px */
+            height: 300px;
             overflow-y: auto;
             flex-shrink: 0;
         }
 
-        /* Secção Inferior REDUZIDA */
         .bottom-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -237,7 +234,7 @@
         .maximized .close-btn-max { display: block; }
 
         .resize-btn { position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.9); color: white; border: 1px solid var(--accent-primary); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.6rem; z-index: 50; }
-        #silence-timer { color: var(--accent-radio); font-weight: bold; font-size: 0.75rem; margin-right: 10px; }
+        #silence-timer { color: var(--accent-radio); font-weight: bold; font-size: 0.85rem; margin-right: 15px; }
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
@@ -245,7 +242,7 @@
 <header>
     <div class="header-left">
         <div class="logos"><img src="logo.png" alt="Bombeiros"></div>
-        <h2 style="font-size: 0.8rem; color: var(--text-dim);">CBSL - DASHBOARD</h2>
+        <h2 style="font-size: 0.8rem; color: var(--text-dim);">DASHBOARD OPERACIONAL - CBSL</h2>
     </div>
     <div style="display: flex; align-items: center;">
         <div id="silence-timer"></div>
@@ -369,7 +366,7 @@
 <script>
     const activeAudios = {};
     let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.5 };
-    let lastActiveRadio = null;
+    let lastActiveRadio = null; 
     let countdownInterval = null;
 
     async function carregarInfoGoogle() {
@@ -434,52 +431,134 @@
 
     function playAudio(id, section) {
         const btn = document.getElementById('btn-' + id);
-        if (activeAudios[id]) { activeAudios[id].pause(); delete activeAudios[id]; btn.classList.remove('is-playing'); checkAndResumeRadio(); return; }
+        
+        // Se já está a tocar, para manualmente
+        if (activeAudios[id]) { 
+            activeAudios[id].pause(); 
+            delete activeAudios[id]; 
+            btn.classList.remove('is-playing'); 
+            checkAndResumeRadio(); 
+            return; 
+        }
+
+        // Ao iniciar Alerta Operacional/Apoio: pausar rádios imediatamente
         if (section === 'op' || section === 'ap') {
-            Object.keys(activeAudios).forEach(key => { if (key === 'comercial' || key === 'rfm') { activeAudios[key].pause(); document.getElementById('btn-' + key).style.background = "#334155"; } });
+            pauseCurrentRadios();
             if (countdownInterval) clearInterval(countdownInterval);
             document.getElementById('silence-timer').innerText = "";
         }
+
         const audio = new Audio(id + '.mp3');
         audio.volume = sectionVolumes[section];
-        btn.classList.add('is-playing'); audio.play(); activeAudios[id] = audio;
-        audio.onended = () => { btn.classList.remove('is-playing'); delete activeAudios[id]; checkAndResumeRadio(); };
+        btn.classList.add('is-playing');
+        audio.play();
+        activeAudios[id] = audio;
+
+        audio.onended = () => {
+            btn.classList.remove('is-playing');
+            delete activeAudios[id];
+            checkAndResumeRadio();
+        };
+    }
+
+    function pauseCurrentRadios() {
+        ['comercial', 'rfm'].forEach(radioId => {
+            if (activeAudios[radioId]) {
+                activeAudios[radioId].pause();
+                // Mantemos o lastActiveRadio guardado, mas removemos do activeAudios para o sistema saber que não está a tocar
+                delete activeAudios[radioId];
+                document.getElementById('btn-' + radioId).style.background = "#334155";
+            }
+        });
     }
 
     function toggleRadio(id, url) {
         const btn = document.getElementById('btn-' + id);
-        if (activeAudios[id]) { activeAudios[id].pause(); delete activeAudios[id]; lastActiveRadio = null; btn.style.background = "#334155";
+        if (activeAudios[id]) {
+            activeAudios[id].pause();
+            delete activeAudios[id];
+            lastActiveRadio = null; 
+            btn.style.background = "#334155";
         } else {
+            // Se houver outra rádio, para-a
             const outra = id === 'comercial' ? 'rfm' : 'comercial';
-            if (activeAudios[outra]) { activeAudios[outra].pause(); delete activeAudios[outra]; document.getElementById('btn-' + outra).style.background = "#334155"; }
-            const audio = new Audio(url); audio.volume = sectionVolumes.radio; audio.play(); activeAudios[id] = audio; lastActiveRadio = {id, url}; btn.style.background = "var(--accent-radio)";
+            if (activeAudios[outra]) {
+                activeAudios[outra].pause();
+                delete activeAudios[outra];
+                document.getElementById('btn-' + outra).style.background = "#334155";
+            }
+            
+            const audio = new Audio(url);
+            audio.volume = sectionVolumes.radio;
+            audio.play();
+            activeAudios[id] = audio;
+            lastActiveRadio = {id, url}; // Memoriza qual rádio estava ativa
+            btn.style.background = "var(--accent-radio)";
         }
     }
 
     function checkAndResumeRadio() {
-        const AlertasRestantes = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
-        if (AlertasRestantes.length === 0 && lastActiveRadio) {
+        // Verifica se ainda existem alertas ativos (excluindo rádios)
+        const alertasAtivos = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
+        
+        if (alertasAtivos.length === 0 && lastActiveRadio) {
             let timeLeft = 60;
             if (countdownInterval) clearInterval(countdownInterval);
+            
             document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
+            
             countdownInterval = setInterval(() => {
-                timeLeft--; document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
-                if (timeLeft <= 0) { clearInterval(countdownInterval); document.getElementById('silence-timer').innerText = ""; toggleRadio(lastActiveRadio.id, lastActiveRadio.url); }
+                timeLeft--;
+                document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('silence-timer').innerText = "";
+                    // Volta a tocar a rádio memorizada
+                    toggleRadio(lastActiveRadio.id, lastActiveRadio.url);
+                }
             }, 1000);
         }
     }
 
     function stopAllAudios() {
-        if (countdownInterval) clearInterval(countdownInterval); document.getElementById('silence-timer').innerText = "";
-        Object.keys(activeAudios).forEach(id => { activeAudios[id].pause(); delete activeAudios[id]; });
-        document.querySelectorAll('.btn-audio').forEach(b => { b.classList.remove('is-playing'); if(b.id === 'btn-comercial' || b.id === 'btn-rfm') b.style.background = "#334155"; });
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById('silence-timer').innerText = "";
+        Object.keys(activeAudios).forEach(id => {
+            activeAudios[id].pause();
+            delete activeAudios[id];
+        });
+        document.querySelectorAll('.btn-audio').forEach(b => {
+            b.classList.remove('is-playing');
+            if(b.id === 'btn-comercial' || b.id === 'btn-rfm') b.style.background = "#334155";
+        });
         lastActiveRadio = null;
     }
 
-    function updateSectionVolume(s, v) { sectionVolumes[s] = v; document.getElementById('txt-vol-'+s).innerText = Math.round(v*100)+'%'; }
+    function updateSectionVolume(s, v) { 
+        sectionVolumes[s] = v; 
+        document.getElementById('txt-vol-'+s).innerText = Math.round(v*100)+'%';
+        // Atualiza volume em tempo real se rádio estiver a tocar
+        if((s === 'radio') && activeAudios['comercial']) activeAudios['comercial'].volume = v;
+        if((s === 'radio') && activeAudios['rfm']) activeAudios['rfm'].volume = v;
+    }
+
     function saveNotes() { localStorage.setItem('cbsl_notes_v', document.getElementById('editor').innerHTML); }
     function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes_v') || ''; }
-    function updateClock() { const d = new Date(); document.getElementById('clock-date').innerText = d.toLocaleDateString('pt-PT', {day:'numeric', month:'short'}); document.getElementById('clock-time').innerText = d.toLocaleTimeString('pt-PT', {hour12:false}); }
+    
+    function updateClock() {
+        const d = new Date();
+        // Formato: segunda, 15 Janeiro 2026
+        const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        let dateStr = d.toLocaleDateString('pt-PT', optionsDate);
+        
+        // Remover a palavra "de" que o locale pt-PT costuma colocar
+        dateStr = dateStr.replace(/ de /g, ' ');
+        
+        document.getElementById('clock-date').innerText = dateStr;
+        document.getElementById('clock-time').innerText = d.toLocaleTimeString('pt-PT', {hour12:false});
+    }
+
     function iniciarAudioContext() {}
 </script>
 </body>
