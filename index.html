@@ -456,36 +456,62 @@ function alterarTamanhoFonte(tamanho) {
     };
 
     function playAudio(id, section) {
-        const btn = document.getElementById('btn-' + id);
-        
-        // Se já está a tocar, para manualmente
-        if (activeAudios[id]) { 
-            activeAudios[id].pause(); 
-            delete activeAudios[id]; 
-            btn.classList.remove('is-playing'); 
-            checkAndResumeRadio(); 
-            return; 
-        }
-
-        // Ao iniciar Alerta Operacional/Apoio: pausar rádios imediatamente
-        if (section === 'op' || section === 'ap') {
-            pauseCurrentRadios();
-            if (countdownInterval) clearInterval(countdownInterval);
-            document.getElementById('silence-timer').innerText = "";
-        }
-
-        const audio = new Audio(id + '.mp3');
-        audio.volume = sectionVolumes[section];
-        btn.classList.add('is-playing');
-        audio.play();
-        activeAudios[id] = audio;
-
-        audio.onended = () => {
-            btn.classList.remove('is-playing');
-            delete activeAudios[id];
-            checkAndResumeRadio();
-        };
+    const btn = document.getElementById('btn-' + id);
+    
+    if (activeAudios[id]) { 
+        activeAudios[id].pause(); 
+        delete activeAudios[id]; 
+        btn.classList.remove('is-playing'); 
+        checkAndResumeRadio(); 
+        return; 
     }
+
+    if (section === 'op' || section === 'ap') {
+        pauseCurrentRadios();
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById('silence-timer').innerText = "";
+    }
+
+    // Lógica para Alerta Noturno (00h às 07h)
+    const agora = new Date();
+    const hora = agora.getHours();
+    
+    // Se for operacional E estiver entre as 00:00:00 e as 06:59:59
+    if (section === 'op' && (hora >= 0 && hora < 7)) {
+        const audioNoturno = new Audio('alerta_noturno.mp3');
+        audioNoturno.volume = sectionVolumes[section];
+        btn.classList.add('is-playing');
+        
+        // Toca o alerta noturno primeiro
+        audioNoturno.play();
+        activeAudios['noturno_temp'] = audioNoturno;
+
+        audioNoturno.onended = () => {
+            delete activeAudios['noturno_temp'];
+            // Após o fim do noturno, inicia o operacional real
+            iniciarReproducaoReal(id, section, btn);
+        };
+    } else {
+        // Horário normal: toca imediatamente
+        iniciarReproducaoReal(id, section, btn);
+    }
+}
+
+// Função auxiliar para evitar repetição de código
+function iniciarReproducaoReal(id, section, btn) {
+    const audio = new Audio(id + '.mp3');
+    audio.volume = sectionVolumes[section];
+    if (!btn.classList.contains('is-playing')) btn.classList.add('is-playing');
+    
+    audio.play();
+    activeAudios[id] = audio;
+
+    audio.onended = () => {
+        btn.classList.remove('is-playing');
+        delete activeAudios[id];
+        checkAndResumeRadio();
+    };
+}
 
     function pauseCurrentRadios() {
         ['comercial', 'rfm'].forEach(radioId => {
