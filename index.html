@@ -244,6 +244,9 @@
         <div class="logos"><img src="logo.png" alt="Bombeiros"></div>
         <h2 style="font-size: 0.8rem; color: var(--text-dim);">DASHBOARD OPERACIONAL - CBSL</h2>
     </div>
+    <div id="alerta-troca-turno" style="display: none; color: var(--accent-radio); font-weight: 800; font-size: 1.1rem; animation: pulse-alert 1s infinite; background: rgba(250, 204, 21, 0.1); padding: 5px 15px; border-radius: 4px; border: 1px solid var(--accent-radio);">
+        ⚠️ TROCA DE TURNO ⚠️
+    </div>
     <div style="display: flex; align-items: center;">
         <div id="silence-timer"></div>
         <div class="clock-container"><span id="clock-date"></span><span id="clock-time"></span></div>
@@ -547,6 +550,7 @@ function alterarTamanhoFonte(tamanho) {
     function stopAllAudios() {
         if (countdownInterval) clearInterval(countdownInterval);
         document.getElementById('silence-timer').innerText = "";
+        document.getElementById('alerta-troca-turno').style.display = 'none';
         Object.keys(activeAudios).forEach(id => {
             activeAudios[id].pause();
             delete activeAudios[id];
@@ -568,19 +572,62 @@ function alterarTamanhoFonte(tamanho) {
 
     function saveNotes() { localStorage.setItem('cbsl_notes_v', document.getElementById('editor').innerHTML); }
     function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes_v') || ''; }
-    
-    function updateClock() {
-        const d = new Date();
-        // Formato: segunda, 15 Janeiro 2026
-        const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-        let dateStr = d.toLocaleDateString('pt-PT', optionsDate);
+
+// Variável para evitar que o áudio toque múltiplas vezes no mesmo segundo
+let tocandoTrocaTurno = false;
+
+function verificarTrocaTurno(horas, minutos, segundos) {
+    const horarioMatinal = (horas === 8 && minutos === 0 && segundos === 0);
+    const horarioNoturno = (horas === 20 && minutos === 0 && segundos === 0);
+
+    if ((horarioMatinal || horarioNoturno) && !tocandoTrocaTurno) {
+        tocarAudioTrocaTurno();
+        tocandoTrocaTurno = true;
         
-        // Remover a palavra "de" que o locale pt-PT costuma colocar
-        dateStr = dateStr.replace(/ de /g, ' ');
-        
-        document.getElementById('clock-date').innerText = dateStr;
-        document.getElementById('clock-time').innerText = d.toLocaleTimeString('pt-PT', {hour12:false});
+        // Reset da trava após 2 segundos para permitir o próximo ciclo
+        setTimeout(() => { tocandoTrocaTurno = false; }, 2000);
     }
+}
+
+function tocarAudioTrocaTurno() {
+    pauseCurrentRadios();
+    if (countdownInterval) clearInterval(countdownInterval);
+    document.getElementById('silence-timer').innerText = "";
+
+    // Mostrar o alerta visual no topo
+    const visualAlert = document.getElementById('alerta-troca-turno');
+    if (visualAlert) visualAlert.style.display = 'block';
+
+    const audio = new Audio('troca_turno.mp3');
+    audio.volume = sectionVolumes.ap;
+    activeAudios['troca_turno'] = audio; 
+    
+    audio.play().catch(e => console.error("Erro ao tocar áudio: ", e));
+    
+    audio.onended = () => {
+        // Esconder o alerta visual quando o som terminar
+        if (visualAlert) visualAlert.style.display = 'none';
+        
+        delete activeAudios['troca_turno'];
+        checkAndResumeRadio();
+    };
+}    
+    function updateClock() {
+    const d = new Date();
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const s = d.getSeconds();
+
+    // Chamada para a nova função de troca de turno
+    verificarTrocaTurno(h, m, s);
+
+    const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    let dateStr = d.toLocaleDateString('pt-PT', optionsDate);
+    dateStr = dateStr.replace(/ de /g, ' ');
+    
+    document.getElementById('clock-date').innerText = dateStr;
+    document.getElementById('clock-time').innerText = d.toLocaleTimeString('pt-PT', {hour12:false});
+}
 
     function iniciarAudioContext() {}
 </script>
