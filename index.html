@@ -284,10 +284,23 @@
             <div class="button-grid" id="grid-apoio"></div>
         </div>
         <div class="category-group">
-            <span class="category-title">📻 Rádios</span>
-            <div class="inline-volume">
-                <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="updateSectionVolume('radio', this.value)">
-                <span class="volume-pct" id="txt-vol-radio">50%</span>
+            <span class="category-title" id="radio-title-secret" onclick="secretRadioClick()" style="cursor:default; user-select:none;">📻 Rádios</span>
+            <div class="inline-volume" style="display:none;">
+                <input type="range" class="volume-slider" id="slider-radio-hidden" min="0" max="1" step="0.05" value="0.1" oninput="updateSectionVolume('radio', this.value)">
+                <span class="volume-pct" id="txt-vol-radio">10%</span>
+            </div>
+            <!-- Painel secreto de volume -->
+            <div id="secret-volume-panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0f172a; border:2px solid var(--accent-radio); border-radius:12px; padding:20px 28px; z-index:9999; min-width:280px; box-shadow:0 0 30px rgba(250,204,21,0.3);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="color:var(--accent-radio); font-weight:800; font-size:0.9rem;">📻 VOLUME RÁDIOS</span>
+                    <button onclick="fecharSecretPanel()" style="background:var(--accent-danger); border:none; color:white; border-radius:6px; padding:4px 10px; cursor:pointer; font-weight:800; font-size:0.8rem;">✕</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:0.75rem; color:var(--text-dim);">0%</span>
+                    <input type="range" style="flex:1; accent-color:var(--accent-radio); cursor:pointer;" min="0" max="1" step="0.05" value="0.1" id="secret-slider" oninput="updateSectionVolume('radio', this.value); document.getElementById('secret-vol-display').innerText=Math.round(this.value*100)+'%'; document.getElementById('slider-radio-hidden').value=this.value;">
+                    <span style="font-size:0.75rem; color:var(--text-dim);">100%</span>
+                </div>
+                <div style="text-align:center; margin-top:10px; font-size:1.4rem; font-weight:800; color:var(--accent-radio);" id="secret-vol-display">10%</div>
             </div>
             <div class="button-grid">
                 <button class="btn-audio" id="btn-comercial" onclick="toggleRadio('comercial', 'https://stream-icy.bauermedia.pt/comercial.aac')">COMERCIAL</button>
@@ -372,7 +385,7 @@
 
 <script>
     const activeAudios = {};
-    let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.5 };
+    let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.1 };
     let lastActiveRadio = null; 
     let countdownInterval = null;
 
@@ -663,6 +676,25 @@ function tocarAudioTrocaTurno() {
     document.getElementById('clock-date').innerText = dateStr;
     document.getElementById('clock-time').innerText = d.toLocaleTimeString('pt-PT', {hour12:false});
 }
+
+    let _secretClicks = 0, _secretTimer = null;
+    function secretRadioClick() {
+        _secretClicks++;
+        if (_secretTimer) clearTimeout(_secretTimer);
+        _secretTimer = setTimeout(() => { _secretClicks = 0; }, 600);
+        if (_secretClicks >= 3) {
+            _secretClicks = 0;
+            clearTimeout(_secretTimer);
+            const panel = document.getElementById('secret-volume-panel');
+            const currentVol = sectionVolumes.radio;
+            document.getElementById('secret-slider').value = currentVol;
+            document.getElementById('secret-vol-display').innerText = Math.round(currentVol * 100) + '%';
+            panel.style.display = 'block';
+        }
+    }
+    function fecharSecretPanel() {
+        document.getElementById('secret-volume-panel').style.display = 'none';
+    }
 
     function iniciarAudioContext() {}
 </script>
