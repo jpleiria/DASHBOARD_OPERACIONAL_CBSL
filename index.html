@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Operacional - CBSL</title>
     <style>
+        /* ============================================================
+           VARIÁVEIS GLOBAIS
+           Todas as dimensões usam clamp(mínimo, preferido, máximo)
+           para se adaptarem suavemente entre resoluções.
+        ============================================================ */
         :root {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -13,7 +18,35 @@
             --accent-danger: #ef4444;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
+
+            /* Escala base usada para derivar proporções — ajusta-se via media queries */
+            --header-h:        clamp(52px,  6vh,   88px);
+            --logo-h:          clamp(32px,  4.2vh, 62px);
+            --gap-base:        clamp(5px,   0.6vw, 10px);
+            --pad-base:        clamp(6px,   0.7vw, 12px);
+            --radius-base:     8px;
+
+            /* Tipografia fluida */
+            --fs-clock-time:   clamp(1.3rem, 2.2vw, 2.4rem);
+            --fs-clock-date:   clamp(0.75rem, 1vw,  1.15rem);
+            --fs-title:        clamp(0.85rem, 1.3vw, 1.65rem);
+            --fs-btn-audio:    clamp(0.65rem, 0.85vw, 0.9rem);
+            --fs-category:     clamp(0.6rem,  0.7vw, 0.75rem);
+            --fs-small:        clamp(0.6rem,  0.7vw, 0.8rem);
+            --fs-editor:       clamp(14px, 1.4vw, 22px);
+            --fs-app-desc:     clamp(10px, 1.1vw, 14px);
+
+            /* Alturas dos painéis */
+            --controls-h:      clamp(28%, 33%, 38%);
+            --top-apps-h:      clamp(44%, 50%, 55%);
+            --info-h:          clamp(120px, 15vh, 280px);
+            --btn-audio-minh:  clamp(60px, 7.5vh, 95px);
         }
+
+        /* ============================================================
+           RESET & BODY
+        ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
@@ -22,92 +55,130 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            /* dvh garante altura correta em browsers mobile com barra de endereço */
+            height: 100dvh;
             overflow: hidden;
         }
 
-       header {
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--card-bg);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    z-index: 100;
-    height: 80px; /* Altura aumentada de 55px para 80px */
-    flex-shrink: 0;
-}
-
-.header-left { display: flex; align-items: center; gap: 15px; } /* Gap aumentado */
-
-.logos img { 
-    height: 55px; /* Logo aumentado de 32px para 55px */
-    width: auto; 
-}
-
-/* Novo seletor para controlar o título que não tinhas no CSS */
-.header-left h2 {
-    font-size: 1.6rem !important; 
-    color: var(--text-dim);
-    margin: 0;
-}
-
-.clock-container {
-    display: flex;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 10px 15px; /* Padding aumentado */
-    border-radius: 8px;
-    gap: 20px;
-}
-
-#clock-date { font-size: 1.1rem; color: var(--text-dim); text-transform: capitalize; font-weight: 500; }
-#clock-time { font-size: 2rem; color: #ffffff; font-weight: 800; font-family: 'Courier New', monospace; }
-
-        .dashboard-container { 
+        /* ============================================================
+           HEADER
+        ============================================================ */
+        header {
+            padding: 0 clamp(10px, 1.5vw, 24px);
             display: flex;
-            flex-direction: column; 
-            gap: 8px; 
-            padding: 8px; 
-            flex: 1; 
-            overflow: hidden; 
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-bg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            height: var(--header-h);
+            flex-shrink: 0;
         }
 
-        .controls-panel { 
-            background: var(--card-bg); 
-            padding: 10px; 
-            border-radius: 10px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 5px;
-            height: 35%; 
+        .header-left { display: flex; align-items: center; gap: clamp(8px, 1.2vw, 18px); }
+
+        .logos img {
+            height: var(--logo-h);
+            width: auto;
+        }
+
+        .header-left h2 {
+            font-size: var(--fs-title) !important;
+            color: var(--text-dim);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: clamp(160px, 28vw, 600px);
+        }
+
+        .clock-container {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: clamp(6px, 0.8vh, 12px) clamp(10px, 1vw, 18px);
+            border-radius: var(--radius-base);
+            gap: clamp(10px, 1.5vw, 24px);
+        }
+
+        #clock-date {
+            font-size: var(--fs-clock-date);
+            color: var(--text-dim);
+            text-transform: capitalize;
+            font-weight: 500;
+        }
+        #clock-time {
+            font-size: var(--fs-clock-time);
+            color: #ffffff;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ============================================================
+           DASHBOARD PRINCIPAL
+        ============================================================ */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-base);
+            padding: var(--gap-base);
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           PAINEL DE CONTROLO (áudio)
+        ============================================================ */
+        .controls-panel {
+            background: var(--card-bg);
+            padding: var(--pad-base);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3px, 0.4vh, 6px);
+            height: var(--controls-h);
             overflow-y: auto;
             flex-shrink: 0;
         }
-        
+
         .category-group {
-            background: rgba(255, 255, 255, 0.02); padding: 8px; border-radius: 8px;
-            border: 1px solid #334155; margin-bottom: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: clamp(5px, 0.6vw, 10px);
+            border-radius: var(--radius-base);
+            border: 1px solid #334155;
+            margin-bottom: 3px;
         }
 
-        .category-title { color: var(--accent-primary); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 6px; font-weight: bold; display: block; }
+        .category-title {
+            color: var(--accent-primary);
+            font-size: var(--fs-category);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: block;
+        }
 
-        .inline-volume { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .inline-volume { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
         .volume-slider { flex: 1; cursor: pointer; height: 6px; accent-color: var(--accent-primary); }
-        .volume-pct { font-size: 0.75rem; min-width: 35px; text-align: right; }
+        .volume-pct { font-size: var(--fs-small); min-width: 35px; text-align: right; }
 
-        .button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        
-        .btn-audio { 
-            background: #334155; 
-            border: 1px solid #475569; 
-            color: white; 
-            padding: 10px 4px;
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 0.85rem;
+        /* Grid de botões: 4 colunas no geral, adapta em ecrãs muito estreitos */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(5px, 0.7vw, 12px);
+        }
+
+        .btn-audio {
+            background: #334155;
+            border: 1px solid #475569;
+            color: white;
+            padding: clamp(6px, 0.7vh, 12px) 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--fs-btn-audio);
             font-weight: 800;
-            min-height: 85px; 
+            min-height: var(--btn-audio-minh);
             transition: all 0.2s;
             line-height: 1.2;
             display: flex;
@@ -116,48 +187,70 @@
             text-align: center;
         }
 
-        .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 4px; }
+        .btn-mute-all {
+            width: 100%;
+            background: var(--accent-danger);
+            color: white;
+            border: none;
+            padding: clamp(5px, 0.6vh, 10px);
+            border-radius: 6px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-bottom: 3px;
+            font-size: var(--fs-btn-audio);
+        }
+
         .is-playing { animation: pulse-alert 0.8s infinite !important; border: 2px solid white !important; }
 
         @keyframes pulse-alert {
-            0% { background-color: var(--accent-danger); }
-            50% { background-color: #b91c1c; }
+            0%   { background-color: var(--accent-danger); }
+            50%  { background-color: #b91c1c; }
             100% { background-color: var(--accent-danger); }
         }
 
+        /* ============================================================
+           LAYOUT PRINCIPAL
+        ============================================================ */
         .main-layout {
             display: flex;
             flex-direction: column;
-            gap: 6px; 
+            gap: var(--gap-base);
             flex: 1;
             overflow: hidden;
             position: relative;
         }
 
+        /* Apps prioritárias (Shelly + Escala) */
         .top-priority-apps {
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 8px;
-            height: 52%; 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap-base);
+            height: var(--top-apps-h);
             flex-shrink: 0;
         }
 
         .app-container-full {
-            background: #000; border-radius: 8px; overflow: hidden; border: 2px solid #334155; height: 100%; position: relative;
+            background: #000;
+            border-radius: var(--radius-base);
+            overflow: hidden;
+            border: 2px solid #334155;
+            height: 100%;
+            position: relative;
         }
 
-        #card-shelly iframe { 
-            width: 80%; 
-            height: 80%; 
-            transform: scale(1.25); 
+        #card-shelly iframe {
+            width: 80%;
+            height: 80%;
+            transform: scale(1.25);
             transform-origin: 0 0;
-            border: none; 
-            display: block; 
-            background: white; 
+            border: none;
+            display: block;
+            background: white;
         }
 
         #card-escala iframe { width: 100%; height: 100%; border: none; display: block; background: white; }
 
+        /* Credenciais Shelly */
         #shelly-credentials {
             display: none;
             position: absolute;
@@ -166,7 +259,7 @@
             transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.98);
             padding: 12px;
-            border-radius: 8px;
+            border-radius: var(--radius-base);
             border: 2px solid var(--accent-radio);
             z-index: 5002;
             flex-direction: column;
@@ -176,23 +269,25 @@
         #card-shelly.maximized #shelly-credentials { display: flex; }
 
         .cred-row { display: flex; align-items: center; gap: 8px; background: #000; padding: 6px 10px; border-radius: 4px; border: 1px solid #334155; }
-        .cred-row input { background: transparent; border: none; color: white; font-family: monospace; font-size: 0.9rem; width: 220px; outline: none; }
-        .copy-btn { background: var(--accent-primary); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+        .cred-row input { background: transparent; border: none; color: white; font-family: monospace; font-size: 0.9rem; width: clamp(140px, 18vw, 220px); outline: none; }
+        .copy-btn { background: var(--accent-primary); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; white-space: nowrap; }
 
+        /* Secção de informações / avisos */
         .info-estatica-container {
             background: var(--card-bg);
             border: 2px solid #334155;
-            border-radius: 8px;
-            padding: 12px;
-            height: 300px;
+            border-radius: var(--radius-base);
+            padding: var(--pad-base);
+            height: var(--info-h);
             overflow-y: auto;
             flex-shrink: 0;
         }
 
+        /* Zona inferior: mini-apps + notas */
         .bottom-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: var(--gap-base);
             flex: 1;
             min-height: 0;
         }
@@ -201,51 +296,168 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(2, 1fr);
-            gap: 8px;
+            gap: var(--gap-base);
         }
 
+        /* Bloco de notas */
         .notes-container {
-            background: #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 2px solid #334155;
+            background: #e2e8f0;
+            border-radius: var(--radius-base);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid #334155;
         }
 
         .notes-toolbar {
             background: #1e293b;
-            padding: 5px;
+            padding: clamp(3px, 0.4vh, 7px);
             display: flex;
             gap: 8px;
             align-items: center;
             border-bottom: 2px solid #334155;
         }
 
-        .toolbar-btn { 
-            background: #334155; border: 1px solid #475569; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; 
+        .toolbar-btn {
+            background: #334155;
+            border: 1px solid #475569;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: var(--fs-small);
         }
         .toolbar-btn.btn-delete { background: var(--accent-danger); margin-left: auto; font-weight: bold; }
         .toolbar-btn.active { background: var(--accent-primary); }
 
-        #editor { flex: 1; padding: 10px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 22px; } /* <--- alterar o tamanho da letra no bloco de notas */
+        #editor {
+            flex: 1;
+            padding: 10px;
+            background: white;
+            color: #1e293b;
+            overflow-y: auto;
+            outline: none;
+            font-size: var(--fs-editor);
+        }
 
-        .app-card { 
-            background: var(--card-bg); border-radius: 8px; overflow: hidden; position: relative; 
-            border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
+        /* Mini-cards de apps */
+        .app-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-base);
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             text-align: center;
         }
-        .app-card .app-icon { font-size: 1.2rem; }
-        .app-card .app-desc { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-top: 4px; line-height: 1.1; }
-        .app-card iframe { display: none; }
+        .app-card .app-icon  { font-size: clamp(1rem, 1.4vw, 1.5rem); }
+        .app-card .app-desc  { font-size: var(--fs-app-desc); font-weight: bold; text-transform: uppercase; margin-top: 4px; line-height: 1.1; }
+        .app-card iframe     { display: none; }
 
-        .maximized { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 5000 !important; border-radius: 8px !important; border: 3px solid var(--accent-primary) !important; background: black !important; }
-        .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; border: none; transform: none !important; width: 100% !important; height: 100% !important; }
-        
-        .close-btn-max { 
-            display: none; position: absolute; top: 15px; right: 15px; background: var(--accent-danger); 
-            color: white; border: 2px solid white; border-radius: 8px; padding: 8px 16px; 
-            cursor: pointer; font-size: 0.9rem; font-weight: 800; z-index: 5001;
+        /* Estado maximizado */
+        .maximized { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 5000 !important; border-radius: var(--radius-base) !important; border: 3px solid var(--accent-primary) !important; background: black !important; }
+        .maximized iframe { display: block !important; width: 100% !important; height: 100% !important; border: none; transform: none !important; }
+
+        .close-btn-max {
+            display: none;
+            position: absolute;
+            top: clamp(8px, 1.2vh, 18px);
+            right: clamp(8px, 1.2vw, 18px);
+            background: var(--accent-danger);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            padding: clamp(5px, 0.6vh, 10px) clamp(10px, 1.2vw, 18px);
+            cursor: pointer;
+            font-size: clamp(0.75rem, 0.9vw, 1rem);
+            font-weight: 800;
+            z-index: 5001;
         }
         .maximized .close-btn-max { display: block; }
 
-        .resize-btn { position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.9); color: white; border: 1px solid var(--accent-primary); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.6rem; z-index: 50; }
-        #silence-timer { color: var(--accent-radio); font-weight: bold; font-size: 0.85rem; margin-right: 15px; }
+        .resize-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            border: 1px solid var(--accent-primary);
+            border-radius: 4px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: clamp(0.5rem, 0.6vw, 0.65rem);
+            z-index: 50;
+        }
+
+        #silence-timer {
+            color: var(--accent-radio);
+            font-weight: bold;
+            font-size: clamp(0.7rem, 0.9vw, 0.95rem);
+            margin-right: clamp(8px, 1.2vw, 18px);
+        }
+
+        /* ============================================================
+           MEDIA QUERIES — ajustes pontuais por resolução
+
+           Os clamp() já fazem a maior parte do trabalho.
+           Aqui apenas afinamos valores que a função linear não cobre bem.
+        ============================================================ */
+
+        /* Ecrãs pequenos (portáteis / tablets landscape ≤ 1280px) */
+        @media (max-width: 1280px) {
+            :root {
+                --controls-h: clamp(30%, 35%, 40%);
+                --top-apps-h: clamp(42%, 48%, 52%);
+                --info-h:     clamp(100px, 13vh, 200px);
+            }
+            /* Em ecrãs mais estreitos, 3 colunas no grid de botões de áudio */
+            .button-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            /* Ocultar data para poupar espaço no header */
+            #clock-date { display: none; }
+        }
+
+        /* Ecrãs médios — Full HD (1920 × 1080) */
+        @media (min-width: 1281px) and (max-width: 1920px) {
+            /* Os valores clamp() já cobrem bem este intervalo. */
+        }
+
+        /* Ecrãs grandes — WQHD / 2K (1921 – 2560px) */
+        @media (min-width: 1921px) and (max-width: 2560px) {
+            :root {
+                --btn-audio-minh: clamp(85px, 8vh, 110px);
+                --info-h:         clamp(200px, 18vh, 340px);
+            }
+        }
+
+        /* Ecrãs muito grandes — 4K (> 2560px) */
+        @media (min-width: 2561px) {
+            :root {
+                --header-h:       clamp(80px, 5.5vh, 120px);
+                --logo-h:         clamp(55px, 4vh,  90px);
+                --btn-audio-minh: clamp(100px, 9vh, 130px);
+                --info-h:         clamp(240px, 16vh, 420px);
+                --gap-base:       clamp(8px, 0.5vw, 16px);
+            }
+            .button-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: clamp(8px, 0.6vw, 18px);
+            }
+        }
+
+        /* Ecrãs muito estreitos (≤ 900px) — tablet portrait */
+        @media (max-width: 900px) {
+            .top-priority-apps  { grid-template-columns: 1fr; height: auto; max-height: 45vh; }
+            .bottom-split       { grid-template-columns: 1fr; }
+            .button-grid        { grid-template-columns: repeat(2, 1fr); }
+            .cards-grid-3x3     { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+            .header-left h2     { display: none; }  /* Título demasiado longo em mobile */
+        }
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
