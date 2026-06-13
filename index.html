@@ -465,14 +465,16 @@ function alterarTamanhoFonte(tamanho) {
         { id: 'alerta', label: '🚨<br>ALERTA (OUTROS)' }
     ];
     const apoios = [
-        { id: 'chefe', label: 'CHEFE SERVIÇO À CENTRAL' }, { id: 'rendição', label: 'RENDIÇÃO À CENTRAL' },
+        { id: 'chefe', label: 'CHEFE SERVIÇO À CENTRAL' }, { id: 'rendicao', label: 'RENDIÇÃO À CENTRAL' },
         { id: 'logistica', label: 'LOGÍSTICA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' },
         { id: 'Sentido_Unidade', label: 'SENTIDO À UNIDADE' }
     ];
 
     window.onload = () => {
-        operacionais.forEach(i => document.getElementById('grid-operacional').innerHTML += `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`);
-        apoios.forEach(i => document.getElementById('grid-apoio').innerHTML += `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`);
+        const gridOp = document.getElementById('grid-operacional');
+        operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`));
+        const gridAp = document.getElementById('grid-apoio');
+        apoios.forEach(i => gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`));
         updateClock(); setInterval(updateClock, 1000); loadNotes();
         carregarInfoGoogle();
         setInterval(carregarInfoGoogle, 300000); 
