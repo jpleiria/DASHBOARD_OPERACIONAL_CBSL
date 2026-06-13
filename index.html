@@ -462,11 +462,12 @@ function alterarTamanhoFonte(tamanho) {
         { id: 'incendio_industrial', label: '🚒<br>INCÊNDIO INDUSTRIAL' },
         { id: 'incendio_florestal', label: '🔥<br>INCÊNDIO FLORESTAL' }, 
         { id: 'saída_anulada', label: '❌<br>SAÍDA ANULADA' }, 
-        { id: 'alerta', label: '🚨<br>ALERTA' }
+        { id: 'alerta', label: '🚨<br>ALERTA (OUTROS)' }
     ];
     const apoios = [
         { id: 'chefe', label: 'CHEFE SERVIÇO À CENTRAL' }, { id: 'rendição', label: 'RENDIÇÃO À CENTRAL' },
-        { id: 'logistica', label: 'LOGÍSTICA PRONTA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' }
+        { id: 'logistica', label: 'LOGÍSTICA' }, { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' },
+        { id: 'Sentido_Unidade', label: 'SENTIDO À UNIDADE' }
     ];
 
     window.onload = () => {
@@ -623,6 +624,10 @@ function iniciarReproducaoReal(id, section, btn) {
 
 // Variável para evitar que o áudio toque múltiplas vezes no mesmo segundo
 let tocandoTrocaTurno = false;
+let tocandoAlvorada = false;
+let tocandoTreinoFisico = false;
+let tocandoTreinoOp14 = false;
+let tocandoTreinoOp21 = false;
 
 function verificarTrocaTurno(horas, minutos, segundos) {
     const horarioMatinal = (horas === 8 && minutos === 0 && segundos === 0);
@@ -631,10 +636,53 @@ function verificarTrocaTurno(horas, minutos, segundos) {
     if ((horarioMatinal || horarioNoturno) && !tocandoTrocaTurno) {
         tocarAudioTrocaTurno();
         tocandoTrocaTurno = true;
-        
-        // Reset da trava após 2 segundos para permitir o próximo ciclo
         setTimeout(() => { tocandoTrocaTurno = false; }, 2000);
     }
+
+    // Alvorada às 7h00
+    if (horas === 7 && minutos === 0 && segundos === 0 && !tocandoAlvorada) {
+        tocarAudioAutomatico('Alvorada');
+        tocandoAlvorada = true;
+        setTimeout(() => { tocandoAlvorada = false; }, 2000);
+    }
+
+    // Treino físico às 8h40
+    if (horas === 8 && minutos === 40 && segundos === 0 && !tocandoTreinoFisico) {
+        tocarAudioAutomatico('treino_fisico');
+        tocandoTreinoFisico = true;
+        setTimeout(() => { tocandoTreinoFisico = false; }, 2000);
+    }
+
+    // Treino operacional às 14h00
+    if (horas === 14 && minutos === 0 && segundos === 0 && !tocandoTreinoOp14) {
+        tocarAudioAutomatico('treino_operacional');
+        tocandoTreinoOp14 = true;
+        setTimeout(() => { tocandoTreinoOp14 = false; }, 2000);
+    }
+
+    // Treino operacional às 21h15
+    if (horas === 21 && minutos === 15 && segundos === 0 && !tocandoTreinoOp21) {
+        tocarAudioAutomatico('treino_operacional');
+        tocandoTreinoOp21 = true;
+        setTimeout(() => { tocandoTreinoOp21 = false; }, 2000);
+    }
+}
+
+function tocarAudioAutomatico(filename) {
+    pauseCurrentRadios();
+    if (countdownInterval) clearInterval(countdownInterval);
+    document.getElementById('silence-timer').innerText = "";
+
+    const audio = new Audio(filename + '.mp3');
+    audio.volume = sectionVolumes.ap;
+    activeAudios[filename + '_auto'] = audio;
+
+    audio.play().catch(e => console.error("Erro ao tocar áudio automático: ", e));
+
+    audio.onended = () => {
+        delete activeAudios[filename + '_auto'];
+        checkAndResumeRadio();
+    };
 }
 
 function tocarAudioTrocaTurno() {
