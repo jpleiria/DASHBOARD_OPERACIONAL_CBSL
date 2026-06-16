@@ -500,12 +500,12 @@ function alterarTamanhoFonte(tamanho) {
         document.getElementById('silence-timer').innerText = "";
     }
 
-    // Lógica para Alerta Noturno (00h às 07h)
+    // Lógica para Alerta Noturno (23h às 07h)
     const agora = new Date();
     const hora = agora.getHours();
     
-    // Se for operacional E estiver entre as 00:00:00 e as 06:59:59
-    if (section === 'op' && (hora >= 0 && hora < 7)) {
+    // Se for operacional E estiver entre as 23:00:00 e as 06:59:59
+    if (section === 'op' && (hora >= 23 || hora < 7)) {
         const audioNoturno = new Audio('alerta_noturno.mp3');
         audioNoturno.volume = sectionVolumes[section];
         btn.classList.add('is-playing');
