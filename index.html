@@ -651,24 +651,22 @@ function verificarTrocaTurno(horas, minutos, segundos) {
         setTimeout(() => { tocandoAlvorada = false; }, 2000);
     }
 
-    const eDomingo = new Date().getDay() === 0;
-
-    // Treino físico às 8h40 (não toca ao Domingo)
-    if (horas === 8 && minutos === 40 && segundos === 0 && !tocandoTreinoFisico && !eDomingo) {
+    // Treino físico às 8h40 (todos os dias, incluindo Domingo)
+    if (horas === 8 && minutos === 40 && segundos === 0 && !tocandoTreinoFisico) {
         tocarAudioAutomatico('treino_fisico');
         tocandoTreinoFisico = true;
         setTimeout(() => { tocandoTreinoFisico = false; }, 2000);
     }
 
-    // Treino operacional às 14h00 (não toca ao Domingo)
-    if (horas === 14 && minutos === 0 && segundos === 0 && !tocandoTreinoOp14 && !eDomingo) {
+    // Treino operacional às 14h00 (todos os dias, incluindo Domingo)
+    if (horas === 14 && minutos === 0 && segundos === 0 && !tocandoTreinoOp14) {
         tocarAudioAutomatico('treino_operacional');
         tocandoTreinoOp14 = true;
         setTimeout(() => { tocandoTreinoOp14 = false; }, 2000);
     }
 
-    // Treino operacional às 21h15 (não toca ao Domingo)
-    if (horas === 21 && minutos === 15 && segundos === 0 && !tocandoTreinoOp21 && !eDomingo) {
+    // Treino operacional às 21h15 (todos os dias, incluindo Domingo)
+    if (horas === 21 && minutos === 15 && segundos === 0 && !tocandoTreinoOp21) {
         tocarAudioAutomatico('treino_operacional');
         tocandoTreinoOp21 = true;
         setTimeout(() => { tocandoTreinoOp21 = false; }, 2000);
