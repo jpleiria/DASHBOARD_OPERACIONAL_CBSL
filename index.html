@@ -246,6 +246,90 @@
 
         .resize-btn { position: absolute; top: 5px; right: 5px; background: rgba(15, 23, 42, 0.9); color: white; border: 1px solid var(--accent-primary); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.6rem; z-index: 50; }
         #silence-timer { color: var(--accent-radio); font-weight: bold; font-size: 0.85rem; margin-right: 15px; }
+
+        /* ====================================================================
+           ADAPTAÇÃO AUTOMÁTICA PARA MONITOR HORIZONTAL (PAISAGEM)
+           Tudo o que está acima foi mantido exatamente igual, pensado para o
+           monitor vertical atual. Este bloco só entra em ação quando a
+           largura do ecrã for maior que a altura (ex: monitor normal 16:9),
+           reorganizando o layout para continuar utilizável, sem precisar de
+           tocar no resto do código.
+           ==================================================================== */
+        @media (orientation: landscape) {
+
+            /* O painel de controlos passa de "topo" para "lateral" */
+            .dashboard-container {
+                flex-direction: row;
+            }
+
+            .controls-panel {
+                height: 100%;
+                width: clamp(240px, 26vw, 360px);
+                flex-shrink: 0;
+            }
+
+            /* Em vez de forçar sempre 4 colunas, os botões ajustam-se à
+               largura disponível da barra lateral */
+            .button-grid {
+                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            }
+
+            .main-layout {
+                height: 100%;
+                min-width: 0;
+            }
+
+            /* Redistribui a altura interna, já que agora o main-layout
+               ocupa a altura toda do ecrã (e não 65%) */
+            .top-priority-apps {
+                height: 45%;
+            }
+
+            .info-estatica-container {
+                height: clamp(80px, 16vh, 220px);
+                flex-shrink: 0;
+            }
+
+            .bottom-split, .cards-grid-3x3 {
+                min-height: 0;
+            }
+        }
+
+        /* Reforço extra para monitores horizontais muito baixos (pouca
+           altura disponível), para garantir que nada fica cortado */
+        @media (orientation: landscape) and (max-height: 700px) {
+            .top-priority-apps { height: 40%; }
+            .info-estatica-container { height: clamp(70px, 12vh, 160px); }
+        }
+
+        /* Reforço extra para monitores horizontais muito estreitos
+           (ex: tablet em modo paisagem), para a coluna lateral não
+           ocupar espaço a mais */
+        @media (orientation: landscape) and (max-width: 900px) {
+            .controls-panel { width: clamp(200px, 30vw, 280px); }
+            .button-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+        }
+
+        /* ====================================================================
+           ADAPTAÇÃO PARA OUTRAS RESOLUÇÕES EM MODO VERTICAL (RETRATO)
+           O layout vertical atual (proporções, colunas, etc.) mantém-se
+           inalterado no monitor em uso. Estas regras só entram em ação se,
+           no futuro, o ecrã vertical for mais pequeno do que o atual,
+           encolhendo elementos com tamanho fixo para que nada fique cortado.
+           ==================================================================== */
+        @media (orientation: portrait) and (max-height: 900px) {
+            .info-estatica-container { height: clamp(120px, 22vh, 300px); }
+            header { height: clamp(60px, 9vh, 80px); }
+            .logos img { height: clamp(36px, 6vh, 55px); }
+            #clock-time { font-size: clamp(1.3rem, 3.2vh, 2rem); }
+            #clock-date { font-size: clamp(0.8rem, 2vh, 1.1rem); }
+        }
+
+        @media (orientation: portrait) and (max-width: 500px) {
+            .button-grid { grid-template-columns: repeat(2, 1fr); }
+            .header-left h2 { font-size: 1.1rem !important; }
+            .clock-container { gap: 10px; padding: 6px 10px; }
+        }
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
