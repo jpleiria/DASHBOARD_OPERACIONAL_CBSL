@@ -330,6 +330,36 @@
             .header-left h2 { font-size: 1.1rem !important; }
             .clock-container { gap: 10px; padding: 6px 10px; }
         }
+
+        /* Animações funcionais e discretas */
+        @keyframes dashboard-enter {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes active-halo {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+            50% { box-shadow: 0 0 0 5px rgba(250, 204, 21, 0.16); }
+        }
+        @keyframes content-updated {
+            from { background-color: rgba(59, 130, 246, 0.20); }
+            to { background-color: transparent; }
+        }
+        .anim-ready .category-group, .anim-ready .top-priority-apps, .anim-ready .info-estatica-container, .anim-ready .bottom-split { animation: dashboard-enter 360ms ease-out both; }
+        .anim-ready .category-group:nth-of-type(2) { animation-delay: 70ms; }
+        .anim-ready .category-group:nth-of-type(3) { animation-delay: 140ms; }
+        .anim-ready .top-priority-apps { animation-delay: 80ms; }
+        .anim-ready .info-estatica-container { animation-delay: 140ms; }
+        .anim-ready .bottom-split { animation-delay: 200ms; }
+        .btn-audio, .btn-mute-all, .toolbar-btn, .copy-btn, .resize-btn, .close-btn-max, .app-card, .app-container-full { transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease; }
+        .btn-audio:hover, .toolbar-btn:hover, .copy-btn:hover, .resize-btn:hover, .close-btn-max:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22); }
+        .btn-audio:active, .btn-mute-all:active, .toolbar-btn:active, .copy-btn:active, .resize-btn:active, .close-btn-max:active { transform: scale(0.97); }
+        .app-card:hover, .app-container-full:hover { border-color: var(--accent-primary); box-shadow: 0 5px 16px rgba(15, 23, 42, 0.38); }
+        .is-playing { animation: active-halo 1.6s ease-in-out infinite !important; border: 2px solid var(--accent-radio) !important; }
+        .info-updated { animation: content-updated 900ms ease-out; }
+        #silence-timer { --radio-progress: 0%; padding: 4px 7px; border-radius: 4px; background: linear-gradient(90deg, rgba(250, 204, 21, 0.22) var(--radio-progress), transparent var(--radio-progress)); transition: background 400ms linear, opacity 160ms ease; }
+        #silence-timer:empty { padding: 0; background: transparent; }
+        .maximized { animation: dashboard-enter 180ms ease-out; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; } }
     </style>
 </head>
 <body onclick="iniciarAudioContext()">
@@ -500,7 +530,10 @@
                 .filter(linha => linha !== "")
                 .map(linha => `• ${linha}<br>`)
                 .join('');
-            document.getElementById('conteudo-estatico').innerHTML = htmlFinal || "Nenhuma informação/aviso disponível.";
+            const conteudo = document.getElementById('conteudo-estatico');
+            conteudo.innerHTML = htmlFinal || "Nenhuma informação/aviso disponível.";
+            conteudo.classList.remove('info-updated');
+            requestAnimationFrame(() => conteudo.classList.add('info-updated'));
         } catch (erro) {
             console.error("Erro ao carregar dados do Google:", erro);
             document.getElementById('conteudo-estatico').innerHTML = "<span style='color:red;'>Erro ao carregar avisos da nuvem. Verifique a ligação.</span>";
@@ -579,7 +612,8 @@ function alterarTamanhoFonte(tamanho) {
         apoios.forEach(i => gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`));
         updateClock(); setInterval(updateClock, 1000); loadNotes();
         carregarInfoGoogle();
-        setInterval(carregarInfoGoogle, 300000); 
+        setInterval(carregarInfoGoogle, 300000);
+        requestAnimationFrame(() => document.body.classList.add('anim-ready'));
     };
 
     function playAudio(id, section) {
@@ -684,20 +718,31 @@ function iniciarReproducaoReal(id, section, btn) {
             let timeLeft = 60;
             if (countdownInterval) clearInterval(countdownInterval);
             
-            document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
+            updateSilenceTimer(timeLeft);
             
             countdownInterval = setInterval(() => {
                 timeLeft--;
-                document.getElementById('silence-timer').innerText = `RÁDIO EM: ${timeLeft}s`;
+                updateSilenceTimer(timeLeft);
                 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    document.getElementById('silence-timer').innerText = "";
+                    updateSilenceTimer(0);
                     // Volta a tocar a rádio memorizada
                     toggleRadio(lastActiveRadio.id, lastActiveRadio.url);
                 }
             }, 1000);
         }
+    }
+
+    function updateSilenceTimer(timeLeft) {
+        const timer = document.getElementById('silence-timer');
+        if (timeLeft <= 0) {
+            timer.innerText = "";
+            timer.style.setProperty('--radio-progress', '0%');
+            return;
+        }
+        timer.innerText = `RÁDIO EM: ${timeLeft}s`;
+        timer.style.setProperty('--radio-progress', `${((60 - timeLeft) / 60) * 100}%`);
     }
 
     function stopAllAudios() {
