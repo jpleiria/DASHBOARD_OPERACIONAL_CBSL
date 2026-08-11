@@ -427,6 +427,7 @@
             <div class="button-grid">
                 <button class="btn-audio" id="btn-comercial" onclick="toggleRadio('comercial', 'https://stream-icy.bauermedia.pt/comercial.aac')">COMERCIAL</button>
                 <button class="btn-audio" id="btn-rfm" onclick="toggleRadio('rfm', 'https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC')">RFM</button>
+                <button class="btn-audio" id="btn-m80" onclick="toggleRadio('m80', 'https://stream-icy.bauermedia.pt/m80nacional.aac')">M80</button>
             </div>
         </div>
     </aside>
@@ -683,7 +684,7 @@ function iniciarReproducaoReal(id, section, btn) {
 }
 
     function pauseCurrentRadios() {
-        ['comercial', 'rfm'].forEach(radioId => {
+        ['comercial', 'rfm', 'm80'].forEach(radioId => {
             if (activeAudios[radioId]) {
                 activeAudios[radioId].pause();
                 // Mantemos o lastActiveRadio guardado, mas removemos do activeAudios para o sistema saber que não está a tocar
@@ -702,12 +703,13 @@ function iniciarReproducaoReal(id, section, btn) {
             btn.style.background = "#334155";
         } else {
             // Se houver outra rádio, para-a
-            const outra = id === 'comercial' ? 'rfm' : 'comercial';
-            if (activeAudios[outra]) {
-                activeAudios[outra].pause();
-                delete activeAudios[outra];
-                document.getElementById('btn-' + outra).style.background = "#334155";
-            }
+            ['comercial', 'rfm', 'm80'].filter(outra => outra !== id).forEach(outra => {
+                if (activeAudios[outra]) {
+                    activeAudios[outra].pause();
+                    delete activeAudios[outra];
+                    document.getElementById('btn-' + outra).style.background = "#334155";
+                }
+            });
             
             const audio = new Audio(url);
             audio.volume = sectionVolumes.radio;
@@ -720,7 +722,7 @@ function iniciarReproducaoReal(id, section, btn) {
 
     function checkAndResumeRadio() {
         // Verifica se ainda existem alertas ativos (excluindo rádios)
-        const alertasAtivos = Object.keys(activeAudios).filter(k => k !== 'comercial' && k !== 'rfm');
+        const alertasAtivos = Object.keys(activeAudios).filter(k => !['comercial', 'rfm', 'm80'].includes(k));
         
         if (alertasAtivos.length === 0 && lastActiveRadio) {
             let timeLeft = 60;
@@ -763,7 +765,7 @@ function iniciarReproducaoReal(id, section, btn) {
         });
         document.querySelectorAll('.btn-audio').forEach(b => {
             b.classList.remove('is-playing');
-            if(b.id === 'btn-comercial' || b.id === 'btn-rfm') b.style.background = "#334155";
+            if(['btn-comercial', 'btn-rfm', 'btn-m80'].includes(b.id)) b.style.background = "#334155";
         });
         lastActiveRadio = null;
     }
@@ -774,6 +776,7 @@ function iniciarReproducaoReal(id, section, btn) {
         // Atualiza volume em tempo real se rádio estiver a tocar
         if((s === 'radio') && activeAudios['comercial']) activeAudios['comercial'].volume = v;
         if((s === 'radio') && activeAudios['rfm']) activeAudios['rfm'].volume = v;
+        if((s === 'radio') && activeAudios['m80']) activeAudios['m80'].volume = v;
     }
 
     function saveNotes() { localStorage.setItem('cbsl_notes_v', document.getElementById('editor').innerHTML); }
