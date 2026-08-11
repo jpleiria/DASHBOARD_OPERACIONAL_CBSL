@@ -348,6 +348,10 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
             50% { box-shadow: 0 0 0 5px rgba(250, 204, 21, 0.16); }
         }
+        @keyframes alert-button-active {
+            0%, 100% { background: #dc2626; border-color: #fee2e2; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75); transform: scale(1); }
+            50% { background: #f97316; border-color: #ffffff; box-shadow: 0 0 0 9px rgba(239, 68, 68, 0); transform: scale(1.035); }
+        }
         @keyframes content-updated {
             from { background-color: rgba(59, 130, 246, 0.20); }
             to { background-color: transparent; }
@@ -362,7 +366,7 @@
         .btn-audio:hover, .toolbar-btn:hover, .copy-btn:hover, .resize-btn:hover, .close-btn-max:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22); }
         .btn-audio:active, .btn-mute-all:active, .toolbar-btn:active, .copy-btn:active, .resize-btn:active, .close-btn-max:active { transform: scale(0.97); }
         .app-card:hover, .app-container-full:hover { border-color: var(--accent-primary); box-shadow: 0 5px 16px rgba(15, 23, 42, 0.38); }
-        .is-playing { animation: active-halo 1.6s ease-in-out infinite !important; border: 2px solid var(--accent-radio) !important; }
+        .btn-audio.is-playing { animation: alert-button-active 0.8s ease-in-out infinite !important; border: 2px solid #ffffff !important; color: #ffffff !important; font-weight: 900; }
         .info-updated { animation: content-updated 900ms ease-out; }
         #silence-timer { --radio-progress: 0%; padding: 4px 7px; border-radius: 4px; background: linear-gradient(90deg, rgba(250, 204, 21, 0.22) var(--radio-progress), transparent var(--radio-progress)); transition: background 400ms linear, opacity 160ms ease; }
         #silence-timer:empty { padding: 0; background: transparent; }
@@ -653,7 +657,6 @@ function alterarTamanhoFonte(tamanho) {
         btn.classList.add('is-playing');
         
         // Toca o alerta noturno primeiro
-        audioNoturno.play();
         activeAudios['noturno_temp'] = audioNoturno;
 
         audioNoturno.onended = () => {
@@ -661,6 +664,14 @@ function alterarTamanhoFonte(tamanho) {
             // Após o fim do noturno, inicia o operacional real
             iniciarReproducaoReal(id, section, btn);
         };
+        const cancelarToqueNoturno = () => {
+            if (activeAudios['noturno_temp'] !== audioNoturno) return;
+            delete activeAudios['noturno_temp'];
+            btn.classList.remove('is-playing');
+            checkAndResumeRadio();
+        };
+        audioNoturno.addEventListener('error', cancelarToqueNoturno, { once: true });
+        audioNoturno.play().catch(cancelarToqueNoturno);
     } else {
         // Horário normal: toca imediatamente
         iniciarReproducaoReal(id, section, btn);
@@ -673,14 +684,18 @@ function iniciarReproducaoReal(id, section, btn) {
     audio.volume = sectionVolumes[section];
     if (!btn.classList.contains('is-playing')) btn.classList.add('is-playing');
     
-    audio.play();
     activeAudios[id] = audio;
 
-    audio.onended = () => {
+    const finalizarToque = () => {
+        if (activeAudios[id] !== audio) return;
         btn.classList.remove('is-playing');
         delete activeAudios[id];
         checkAndResumeRadio();
     };
+
+    audio.addEventListener('ended', finalizarToque, { once: true });
+    audio.addEventListener('error', finalizarToque, { once: true });
+    audio.play().catch(finalizarToque);
 }
 
     function pauseCurrentRadios() {
