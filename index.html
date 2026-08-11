@@ -429,9 +429,10 @@
                 <div style="text-align:center; margin-top:10px; font-size:1.4rem; font-weight:800; color:var(--accent-radio);" id="secret-vol-display">10%</div>
             </div>
             <div class="button-grid">
+                <button class="btn-audio" id="btn-cotn" onclick="toggleRadio('cotn', 'https://streaming.smartradio.ch:8510/stream')">MÚSICA AMBIENTE</button>
+                <button class="btn-audio" id="btn-m80" onclick="toggleRadio('m80', 'https://stream-icy.bauermedia.pt/m80nacional.aac')">M80</button>
                 <button class="btn-audio" id="btn-comercial" onclick="toggleRadio('comercial', 'https://stream-icy.bauermedia.pt/comercial.aac')">COMERCIAL</button>
                 <button class="btn-audio" id="btn-rfm" onclick="toggleRadio('rfm', 'https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC')">RFM</button>
-                <button class="btn-audio" id="btn-m80" onclick="toggleRadio('m80', 'https://stream-icy.bauermedia.pt/m80nacional.aac')">M80</button>
             </div>
         </div>
     </aside>
@@ -699,7 +700,7 @@ function iniciarReproducaoReal(id, section, btn) {
 }
 
     function pauseCurrentRadios() {
-        ['comercial', 'rfm', 'm80'].forEach(radioId => {
+        ['comercial', 'rfm', 'm80', 'cotn'].forEach(radioId => {
             if (activeAudios[radioId]) {
                 activeAudios[radioId].pause();
                 // Mantemos o lastActiveRadio guardado, mas removemos do activeAudios para o sistema saber que não está a tocar
@@ -718,7 +719,7 @@ function iniciarReproducaoReal(id, section, btn) {
             btn.style.background = "#334155";
         } else {
             // Se houver outra rádio, para-a
-            ['comercial', 'rfm', 'm80'].filter(outra => outra !== id).forEach(outra => {
+            ['comercial', 'rfm', 'm80', 'cotn'].filter(outra => outra !== id).forEach(outra => {
                 if (activeAudios[outra]) {
                     activeAudios[outra].pause();
                     delete activeAudios[outra];
@@ -737,7 +738,7 @@ function iniciarReproducaoReal(id, section, btn) {
 
     function checkAndResumeRadio() {
         // Verifica se ainda existem alertas ativos (excluindo rádios)
-        const alertasAtivos = Object.keys(activeAudios).filter(k => !['comercial', 'rfm', 'm80'].includes(k));
+        const alertasAtivos = Object.keys(activeAudios).filter(k => !['comercial', 'rfm', 'm80', 'cotn'].includes(k));
         
         if (alertasAtivos.length === 0 && lastActiveRadio) {
             let timeLeft = 60;
@@ -780,7 +781,7 @@ function iniciarReproducaoReal(id, section, btn) {
         });
         document.querySelectorAll('.btn-audio').forEach(b => {
             b.classList.remove('is-playing');
-            if(['btn-comercial', 'btn-rfm', 'btn-m80'].includes(b.id)) b.style.background = "#334155";
+            if(['btn-comercial', 'btn-rfm', 'btn-m80', 'btn-cotn'].includes(b.id)) b.style.background = "#334155";
         });
         lastActiveRadio = null;
     }
@@ -792,6 +793,7 @@ function iniciarReproducaoReal(id, section, btn) {
         if((s === 'radio') && activeAudios['comercial']) activeAudios['comercial'].volume = v;
         if((s === 'radio') && activeAudios['rfm']) activeAudios['rfm'].volume = v;
         if((s === 'radio') && activeAudios['m80']) activeAudios['m80'].volume = v;
+        if((s === 'radio') && activeAudios['cotn']) activeAudios['cotn'].volume = v;
     }
 
     function saveNotes() { localStorage.setItem('cbsl_notes_v', document.getElementById('editor').innerHTML); }
