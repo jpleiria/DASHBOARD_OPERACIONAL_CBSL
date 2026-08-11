@@ -352,6 +352,11 @@
             0%, 100% { background: #dc2626; border-color: #fee2e2; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75); transform: scale(1); }
             50% { background: #f97316; border-color: #ffffff; box-shadow: 0 0 0 9px rgba(239, 68, 68, 0); transform: scale(1.035); }
         }
+        @keyframes radio-equalizer {
+            0%, 100% { transform: scaleY(0.52); opacity: 0.2; }
+            35% { transform: scaleY(0.92); opacity: 0.34; }
+            65% { transform: scaleY(0.68); opacity: 0.26; }
+        }
         @keyframes content-updated {
             from { background-color: rgba(59, 130, 246, 0.20); }
             to { background-color: transparent; }
@@ -369,6 +374,17 @@
         .btn-audio:focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 2px; }
         .app-card:hover, .app-container-full:hover { border-color: var(--accent-primary); box-shadow: 0 5px 16px rgba(15, 23, 42, 0.38); }
         .btn-audio.is-playing { animation: alert-button-active 0.8s ease-in-out infinite !important; border: 2px solid #ffffff !important; color: #ffffff !important; font-weight: 900; }
+        .btn-audio.radio-playing { position: relative; overflow: hidden; background: #1e40af !important; border-color: #60a5fa !important; color: #ffffff !important; font-weight: 900; }
+        .btn-audio.radio-playing::after {
+            content: "";
+            position: absolute;
+            inset: 7px 8px;
+            transform-origin: bottom;
+            background: repeating-linear-gradient(90deg, #bfdbfe 0 3px, transparent 3px 6px);
+            clip-path: polygon(0 65%, 5% 35%, 10% 72%, 15% 22%, 20% 55%, 25% 18%, 30% 68%, 35% 38%, 40% 76%, 45% 28%, 50% 58%, 55% 14%, 60% 70%, 65% 32%, 70% 62%, 75% 20%, 80% 75%, 85% 42%, 90% 64%, 95% 25%, 100% 56%, 100% 100%, 0 100%);
+            animation: radio-equalizer 1.5s ease-in-out infinite;
+            pointer-events: none;
+        }
         .info-updated { animation: content-updated 900ms ease-out; }
         #silence-timer { --radio-progress: 0%; padding: 4px 7px; border-radius: 4px; background: linear-gradient(90deg, rgba(250, 204, 21, 0.22) var(--radio-progress), transparent var(--radio-progress)); transition: background 400ms linear, opacity 160ms ease; }
         #silence-timer:empty { padding: 0; background: transparent; }
@@ -707,7 +723,9 @@ function iniciarReproducaoReal(id, section, btn) {
                 activeAudios[radioId].pause();
                 // Mantemos o lastActiveRadio guardado, mas removemos do activeAudios para o sistema saber que não está a tocar
                 delete activeAudios[radioId];
-                document.getElementById('btn-' + radioId).style.background = "#334155";
+                const radioBtn = document.getElementById('btn-' + radioId);
+                radioBtn.classList.remove('radio-playing');
+                radioBtn.style.background = "#334155";
             }
         });
     }
@@ -718,6 +736,7 @@ function iniciarReproducaoReal(id, section, btn) {
             activeAudios[id].pause();
             delete activeAudios[id];
             lastActiveRadio = null; 
+            btn.classList.remove('radio-playing');
             btn.style.background = "#334155";
         } else {
             // Se houver outra rádio, para-a
@@ -725,7 +744,9 @@ function iniciarReproducaoReal(id, section, btn) {
                 if (activeAudios[outra]) {
                     activeAudios[outra].pause();
                     delete activeAudios[outra];
-                    document.getElementById('btn-' + outra).style.background = "#334155";
+                    const outraBtn = document.getElementById('btn-' + outra);
+                    outraBtn.classList.remove('radio-playing');
+                    outraBtn.style.background = "#334155";
                 }
             });
             
@@ -734,7 +755,8 @@ function iniciarReproducaoReal(id, section, btn) {
             audio.play();
             activeAudios[id] = audio;
             lastActiveRadio = {id, url}; // Memoriza qual rádio estava ativa
-            btn.style.background = "var(--accent-radio)";
+            btn.classList.add('radio-playing');
+            btn.style.background = "";
         }
     }
 
@@ -783,6 +805,7 @@ function iniciarReproducaoReal(id, section, btn) {
         });
         document.querySelectorAll('.btn-audio').forEach(b => {
             b.classList.remove('is-playing');
+            b.classList.remove('radio-playing');
             if(['btn-comercial', 'btn-rfm', 'btn-m80', 'btn-cotn'].includes(b.id)) b.style.background = "#334155";
         });
         lastActiveRadio = null;
