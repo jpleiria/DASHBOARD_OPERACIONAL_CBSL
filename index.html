@@ -365,6 +365,8 @@
         .btn-audio, .btn-mute-all, .toolbar-btn, .copy-btn, .resize-btn, .close-btn-max, .app-card, .app-container-full { transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease; }
         .btn-audio:hover, .toolbar-btn:hover, .copy-btn:hover, .resize-btn:hover, .close-btn-max:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22); }
         .btn-audio:active, .btn-mute-all:active, .toolbar-btn:active, .copy-btn:active, .resize-btn:active, .close-btn-max:active { transform: scale(0.97); }
+        .btn-audio:focus { outline: none; }
+        .btn-audio:focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 2px; }
         .app-card:hover, .app-container-full:hover { border-color: var(--accent-primary); box-shadow: 0 5px 16px rgba(15, 23, 42, 0.38); }
         .btn-audio.is-playing { animation: alert-button-active 0.8s ease-in-out infinite !important; border: 2px solid #ffffff !important; color: #ffffff !important; font-weight: 900; }
         .info-updated { animation: content-updated 900ms ease-out; }
