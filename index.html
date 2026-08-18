@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Operacional - CBSL</title>
+    <title>Dashboard Operacional - CBSL | Notas sincronizadas</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -212,26 +212,16 @@
             gap: 8px;
         }
 
-        .notes-container {
-            background: #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 2px solid #334155;
-        }
-
-        .notes-toolbar {
-            background: #1e293b;
-            padding: 5px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            border-bottom: 2px solid #334155;
-        }
-
-        .toolbar-btn { 
-            background: #334155; border: 1px solid #475569; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; 
-        }
-        .toolbar-btn.btn-delete { background: var(--accent-danger); margin-left: auto; font-weight: bold; }
-        .toolbar-btn.active { background: var(--accent-primary); }
-
-        #editor { flex: 1; padding: 10px; background: white; color: #1e293b; overflow-y: auto; outline: none; font-size: 22px; } /* <--- alterar o tamanho da letra no bloco de notas */
+        .notes-container { background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 2px solid #334155; min-height: 0; display: flex; flex-direction: column; }
+        .notes-access-bar { height: 27px; min-height: 27px; display: flex; align-items: center; gap: 5px; padding: 3px 6px; color: #e2e8f0; background: #1e293b; font-size: 0.65rem; }
+        .notes-access-bar label { color: #94a3b8; }
+        #temporary-code { min-width: 31px; color: #facc15; font: 700 0.8rem/1 'Courier New', monospace; letter-spacing: 0.06em; }
+        #code-expiry { color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .code-duration { height: 20px; max-width: 62px; border: 1px solid #475569; border-radius: 3px; color: white; background: #334155; font-size: 0.62rem; }
+        #generate-code, #show-codes { border: 0; border-radius: 3px; padding: 3px 6px; color: white; font-size: 0.62rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        #generate-code { margin-left: auto; background: var(--accent-primary); }
+        #show-codes { background: #475569; }
+        .notes-frame { display: block; flex: 1; width: 100%; height: auto; min-height: 0; border: 0; background: white; }
 
         .app-card { 
             background: var(--card-bg); border-radius: 8px; overflow: hidden; position: relative; 
@@ -532,14 +522,18 @@
                 </div>
             </section>
 
-            <section class="notes-container">
-    <div class="notes-toolbar">
-        <button class="toolbar-btn" id="btn-bold" onclick="execCmd('bold')" style="width: 40px; font-size: 1rem;"><b>B</b></button>
-        <input type="color" onchange="execCmd('foreColor', this.value)" title="Cor da Fonte" style="width:30px; height:24px; border:none; padding:0; background:none; cursor:pointer;">
-        <button class="toolbar-btn btn-delete" onclick="clearNotes()">APAGAR TUDO</button>
-    </div>
-    <div id="editor" contenteditable="true" oninput="saveNotes()" onkeyup="updateToolbar()" onclick="updateToolbar()"></div>
-</section>
+            <section class="notes-container" aria-label="Notas partilhadas">
+                <div class="notes-access-bar" aria-label="Código temporário de acesso">
+                    <label>CÓDIGO</label><span id="temporary-code">----</span>
+                    <select id="code-duration" class="code-duration" aria-label="Duração do código">
+                        <option value="15">15 min</option><option value="30">30 min</option><option value="60" selected>1 hora</option><option value="120">2 horas</option><option value="240">4 horas</option><option value="480">8 horas</option><option value="720">12 horas</option>
+                    </select>
+                    <span id="code-expiry">Sem códigos ativos</span>
+                    <button id="show-codes" type="button" title="Ver códigos ativos">VER</button><button id="generate-code" type="button">GERAR</button>
+                </div>
+                <!-- Site autónomo de notas, apresentado à central com acesso direto. -->
+                <iframe class="notes-frame" title="Notas partilhadas" src="https://jpleiria.github.io/notas_dashboard/?central=1"></iframe>
+            </section>
         </div>
     </main>
 </div>
@@ -602,8 +596,8 @@ function alterarTamanhoFonte(tamanho) {
 
     saveNotes();
 }
-    function updateToolbar() { const isBold = document.queryCommandState('bold'); document.getElementById('btn-bold').classList.toggle('active', isBold); }
-    function clearNotes() { if(confirm("Apagar todas as notas?")) { document.getElementById('editor').innerHTML = ""; saveNotes(); } }
+    function updateToolbar() { }
+    function clearNotes() { if(confirm("Apagar todas as notas partilhadas?")) { document.getElementById('editor').value = ""; saveNotes(); } }
     function copyText(id) { const el = document.getElementById(id); el.select(); document.execCommand('copy'); const btn = el.nextElementSibling; btn.innerText = "COPIADO!"; btn.style.background = "#10b981"; setTimeout(() => { btn.innerText = "COPIAR"; btn.style.background = "var(--accent-primary)"; }, 2000); }
     function handleCardClick(e, id) { const card = document.getElementById(id); if (!card.classList.contains('maximized')) toggleMaximize(id, e); }
 
@@ -643,7 +637,7 @@ function alterarTamanhoFonte(tamanho) {
         operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`));
         const gridAp = document.getElementById('grid-apoio');
         apoios.forEach(i => gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`));
-        updateClock(); setInterval(updateClock, 1000); loadNotes();
+        updateClock(); setInterval(updateClock, 1000);
         carregarInfoGoogle();
         setInterval(carregarInfoGoogle, 300000);
         requestAnimationFrame(() => document.body.classList.add('anim-ready'));
@@ -822,8 +816,9 @@ function iniciarReproducaoReal(id, section, btn) {
         if((s === 'radio') && activeAudios['cotn']) activeAudios['cotn'].volume = v;
     }
 
-    function saveNotes() { localStorage.setItem('cbsl_notes_v', document.getElementById('editor').innerHTML); }
-    function loadNotes() { document.getElementById('editor').innerHTML = localStorage.getItem('cbsl_notes_v') || ''; }
+    // As notas são agora um site independente apresentado no iframe acima.
+    function saveNotes() { }
+    function loadNotes() { }
 
 // Variável para evitar que o áudio toque múltiplas vezes no mesmo segundo
 let tocandoTrocaTurno = false;
@@ -961,6 +956,83 @@ function tocarAudioTrocaTurno() {
     }
 
     function iniciarAudioContext() {}
+</script>
+<script type="module">
+    // Controlo simples de códigos: adequado apenas para acesso interno/prático.
+    const firebaseConfig = {
+        apiKey: "AIzaSyD3lrcZeqLCg4xZYbVg444MupsD687sOLk",
+        authDomain: "notas-dashboard.firebaseapp.com",
+        projectId: "notas-dashboard",
+        storageBucket: "notas-dashboard.firebasestorage.app",
+        messagingSenderId: "574613777086",
+        appId: "1:574613777086:web:2e0ea3cefac558399a8cef"
+    };
+    const codeDisplay = document.getElementById('temporary-code');
+    const expiryDisplay = document.getElementById('code-expiry');
+    const generateButton = document.getElementById('generate-code');
+    const showCodesButton = document.getElementById('show-codes');
+    const durationSelect = document.getElementById('code-duration');
+
+    let currentCodes = [];
+    function showTemporaryCodes() {
+        const activeCodes = currentCodes
+            .map(data => ({ code: data.code, expiry: data.expiresAt?.toDate?.() }))
+            .filter(item => item.code && item.expiry && item.expiry > new Date())
+            .sort((a, b) => a.expiry - b.expiry);
+        if (!activeCodes.length) {
+            codeDisplay.textContent = '----';
+            expiryDisplay.textContent = 'Sem códigos ativos';
+            return;
+        }
+        const current = activeCodes[activeCodes.length - 1];
+        codeDisplay.textContent = current.code;
+        const until = current.expiry.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+        expiryDisplay.textContent = activeCodes.length === 1 ? `até ${until}` : `${activeCodes.length} ativos · último até ${until}`;
+    }
+
+    try {
+        const [{ initializeApp }, { getFirestore, collection, onSnapshot, addDoc, Timestamp, serverTimestamp }] = await Promise.all([
+            import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
+            import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js')
+        ]);
+        const db = getFirestore(initializeApp(firebaseConfig));
+        const codesRef = collection(db, 'codigosTemporariosNotas');
+        onSnapshot(codesRef, snapshot => {
+            currentCodes = snapshot.docs.map(item => item.data());
+            showTemporaryCodes();
+        }, () => {
+            expiryDisplay.textContent = 'Erro ao ler código';
+        });
+        setInterval(showTemporaryCodes, 30000);
+
+        showCodesButton.addEventListener('click', () => {
+            const activeCodes = currentCodes
+                .map(data => ({ code: data.code, expiry: data.expiresAt?.toDate?.() }))
+                .filter(item => item.code && item.expiry && item.expiry > new Date())
+                .sort((a, b) => a.expiry - b.expiry);
+            alert(activeCodes.length
+                ? activeCodes.map(item => `${item.code} — válido até ${item.expiry.toLocaleString('pt-PT')}`).join('\n')
+                : 'Não existem códigos temporários ativos.');
+        });
+
+        generateButton.addEventListener('click', async () => {
+            const minutes = Number(durationSelect.value);
+            const code = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+            const expiresAt = new Date(Date.now() + minutes * 60 * 1000);
+            generateButton.disabled = true;
+            try {
+                await addDoc(codesRef, { code, expiresAt: Timestamp.fromDate(expiresAt), generatedAt: serverTimestamp() });
+            } catch (error) {
+                console.error('Erro ao gerar código:', error);
+                expiryDisplay.textContent = 'Erro ao gerar código';
+            } finally {
+                generateButton.disabled = false;
+            }
+        });
+    } catch (error) {
+        console.error('Não foi possível iniciar os códigos:', error);
+        expiryDisplay.textContent = 'Códigos indisponíveis';
+    }
 </script>
 </body>
 </html>
