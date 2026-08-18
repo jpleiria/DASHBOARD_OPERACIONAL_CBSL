@@ -529,7 +529,7 @@
                         <option value="15">15 min</option><option value="30">30 min</option><option value="60" selected>1 hora</option><option value="120">2 horas</option><option value="240">4 horas</option><option value="480">8 horas</option><option value="720">12 horas</option>
                     </select>
                     <span id="code-expiry">Sem códigos ativos</span>
-                    <button id="show-codes" type="button" title="Ver códigos ativos">VER</button><button id="generate-code" type="button">GERAR</button>
+                    <button id="show-codes" type="button" title="Ver ou remover códigos ativos">VER</button><button id="generate-code" type="button">GERAR</button>
                 </div>
                 <!-- Site autónomo de notas, apresentado à central com acesso direto. -->
                 <iframe class="notes-frame" title="Notas partilhadas" src="https://jpleiria.github.io/notas_dashboard/?central=1"></iframe>
@@ -991,14 +991,14 @@ function tocarAudioTrocaTurno() {
     }
 
     try {
-        const [{ initializeApp }, { getFirestore, collection, onSnapshot, addDoc, Timestamp, serverTimestamp }] = await Promise.all([
+        const [{ initializeApp }, { getFirestore, collection, doc, onSnapshot, addDoc, deleteDoc, Timestamp, serverTimestamp }] = await Promise.all([
             import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
             import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js')
         ]);
         const db = getFirestore(initializeApp(firebaseConfig));
         const codesRef = collection(db, 'codigosTemporariosNotas');
         onSnapshot(codesRef, snapshot => {
-            currentCodes = snapshot.docs.map(item => item.data());
+            currentCodes = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
             showTemporaryCodes();
         }, () => {
             expiryDisplay.textContent = 'Erro ao ler código';
@@ -1007,17 +1007,27 @@ function tocarAudioTrocaTurno() {
 
         showCodesButton.addEventListener('click', () => {
             const activeCodes = currentCodes
-                .map(data => ({ code: data.code, expiry: data.expiresAt?.toDate?.() }))
+                .map(data => ({ id: data.id, code: data.code, expiry: data.expiresAt?.toDate?.() }))
                 .filter(item => item.code && item.expiry && item.expiry > new Date())
                 .sort((a, b) => a.expiry - b.expiry);
-            alert(activeCodes.length
-                ? activeCodes.map(item => `${item.code} — válido até ${item.expiry.toLocaleString('pt-PT')}`).join('\n')
-                : 'Não existem códigos temporários ativos.');
+            if (!activeCodes.length) { alert('Não existem códigos temporários ativos.'); return; }
+            const selectedCode = prompt(`${activeCodes.map(item => `${item.code} — válido até ${item.expiry.toLocaleString('pt-PT')}`).join('\n')}\n\nEscreva um código para o remover, ou deixe vazio para fechar:`);
+            if (!selectedCode) return;
+            const selected = activeCodes.find(item => item.code === selectedCode.trim());
+            if (!selected) { alert('Esse código não está ativo.'); return; }
+            if (confirm(`Remover o código ${selected.code}? O acesso por este código termina de imediato.`)) {
+                deleteDoc(doc(db, 'codigosTemporariosNotas', selected.id)).catch(error => {
+                    console.error('Erro ao remover código:', error);
+                    alert('Não foi possível remover o código.');
+                });
+            }
         });
 
         generateButton.addEventListener('click', async () => {
             const minutes = Number(durationSelect.value);
-            const code = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+            let code;
+            do { code = String(Math.floor(Math.random() * 10000)).padStart(4, '0'); }
+            while (currentCodes.some(item => item.code === code && item.expiresAt?.toDate?.() > new Date()));
             const expiresAt = new Date(Date.now() + minutes * 60 * 1000);
             generateButton.disabled = true;
             try {
