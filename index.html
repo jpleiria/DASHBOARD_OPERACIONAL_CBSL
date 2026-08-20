@@ -115,6 +115,27 @@
             justify-content: center;
             text-align: center;
         }
+        .btn-info-auto {
+            background: #0f3d5e;
+            border: 1px dashed #38bdf8;
+            color: #e0f2fe;
+            padding: 10px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 800;
+            min-height: 85px;
+            line-height: 1.2;
+            transition: all 0.2s;
+        }
+        .btn-info-auto:hover { background: #075985; border-style: solid; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25); }
+        .auto-touches-panel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; width: min(350px, calc(100vw - 32px)); background: #0f172a; border: 2px solid #38bdf8; border-radius: 12px; padding: 18px 20px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.28); }
+        .auto-touches-panel h3 { margin: 0; color: #7dd3fc; font-size: 0.95rem; }
+        .auto-touches-panel ul { list-style: none; margin: 14px 0 0; padding: 0; }
+        .auto-touches-panel li { padding: 8px 0; border-bottom: 1px solid #334155; color: #f8fafc; font-size: 0.9rem; }
+        .auto-touches-panel li:last-child { border-bottom: 0; }
+        .auto-touches-panel time { display: inline-block; min-width: 52px; color: var(--accent-radio); font-weight: 800; }
+        .close-auto-touches { border: 0; border-radius: 5px; padding: 4px 9px; color: white; background: var(--accent-danger); cursor: pointer; font-weight: 800; font-size: 0.75rem; }
 
         .btn-mute-all { width: 100%; background: var(--accent-danger); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 4px; }
         .is-playing { animation: pulse-alert 0.8s infinite !important; border: 2px solid white !important; }
@@ -390,7 +411,6 @@
         <h2>DASHBOARD OPERACIONAL - CBSL</h2>
     </div>
     <div id="alerta-troca-turno" style="display: none; color: var(--accent-radio); font-weight: 800; font-size: 1.6rem; animation: pulse-alert 1s infinite; background: rgba(250, 204, 21, 0.1); padding: 5px 15px; border-radius: 4px; border: 1px solid var(--accent-radio);">
-        ⚠️ TROCA DE TURNO ⚠️
     </div>
     <div style="display: flex; align-items: center;">
         <div id="silence-timer"></div>
@@ -444,6 +464,20 @@
             </div>
         </div>
     </aside>
+    <section id="auto-touches-panel" class="auto-touches-panel" role="dialog" aria-modal="true" aria-labelledby="auto-touches-title">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <h3 id="auto-touches-title">TOQUES AUTOMÁTICOS</h3>
+            <button class="close-auto-touches" type="button" onclick="closeAutomaticTones()">✕</button>
+        </div>
+        <ul>
+            <li><time>07h00</time> Alvorada</li>
+            <li><time>08h00</time> Formatura</li>
+            <li><time>08h40</time> Treino Físico</li>
+            <li><time>14h00</time> Treino Operacional</li>
+            <li><time>20h00</time> Formatura</li>
+            <li><time>21h15</time> Treino Operacional</li>
+        </ul>
+    </section>
 
     <main class="main-layout">
         <section class="top-priority-apps">
@@ -576,6 +610,13 @@
         }
     }
 
+    function openAutomaticTones() {
+        document.getElementById('auto-touches-panel').style.display = 'block';
+    }
+    function closeAutomaticTones() {
+        document.getElementById('auto-touches-panel').style.display = 'none';
+    }
+
     // Função genérica para Negrito e outras funções simples
 function execCmd(c, v=null) { 
     document.execCommand(c, false, v); 
@@ -645,6 +686,7 @@ function alterarTamanhoFonte(tamanho) {
         const gridOp = document.getElementById('grid-operacional');
         operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`));
         const gridAp = document.getElementById('grid-apoio');
+        gridAp.insertAdjacentHTML('beforeend', `<button class="btn-info-auto" type="button" onclick="openAutomaticTones()">ℹ️<br>INFORMAÇÃO<br>TOQUES AUTOMÁTICOS</button>`);
         apoios.forEach(i => gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`));
         updateClock(); setInterval(updateClock, 1000);
         carregarInfoGoogle();
@@ -880,6 +922,17 @@ function tocarAudioAutomatico(filename) {
     if (countdownInterval) clearInterval(countdownInterval);
     document.getElementById('silence-timer').innerText = "";
 
+    const nomesToques = {
+        Alvorada: 'ALVORADA',
+        treino_fisico: 'TREINO FÍSICO',
+        treino_operacional: 'TREINO OPERACIONAL'
+    };
+    const visualAlert = document.getElementById('alerta-troca-turno');
+    if (visualAlert) {
+        visualAlert.textContent = `🔔 ${nomesToques[filename] || filename.toUpperCase()}`;
+        visualAlert.style.display = 'block';
+    }
+
     const audio = new Audio(filename + '.mp3');
     audio.volume = sectionVolumes.ap;
     activeAudios[filename + '_auto'] = audio;
@@ -887,8 +940,13 @@ function tocarAudioAutomatico(filename) {
     audio.play().catch(e => console.error("Erro ao tocar áudio automático: ", e));
 
     audio.onended = () => {
+        if (visualAlert) visualAlert.style.display = 'none';
         delete activeAudios[filename + '_auto'];
         checkAndResumeRadio(radioSilenceSeconds.ap);
+    };
+    audio.onerror = () => {
+        if (visualAlert) visualAlert.style.display = 'none';
+        delete activeAudios[filename + '_auto'];
     };
 }
 
@@ -897,9 +955,12 @@ function tocarAudioTrocaTurno() {
     if (countdownInterval) clearInterval(countdownInterval);
     document.getElementById('silence-timer').innerText = "";
 
-    // Mostrar o alerta visual no topo
+    // Mostrar o aviso visual no topo
     const visualAlert = document.getElementById('alerta-troca-turno');
-    if (visualAlert) visualAlert.style.display = 'block';
+    if (visualAlert) {
+        visualAlert.textContent = '🔔 FORMATURA';
+        visualAlert.style.display = 'block';
+    }
 
     const audio = new Audio('troca_turno.mp3');
     audio.volume = sectionVolumes.ap;
