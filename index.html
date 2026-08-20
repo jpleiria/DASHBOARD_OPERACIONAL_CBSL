@@ -552,11 +552,20 @@
             if (!resposta.ok) throw new Error('Falha na resposta');
             const texto = await resposta.text();
             const linhas = texto.split(/\r?\n/);
+            // Um CSV costuma terminar com uma quebra de linha; não a mostramos como linha vazia extra.
+            if (linhas.length > 1 && linhas.at(-1) === '') linhas.pop();
+            const escapeHTML = valor => valor
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
             const htmlFinal = linhas
-                .map(linha => linha.replace(/^"|"$/g, '').trim()) 
-                .filter(linha => linha !== "")
-                .map(linha => `• ${linha}<br>`)
-                .join('');
+                .map(linha => {
+                    const valor = linha.replace(/^"|"$/g, '').replace(/""/g, '"');
+                    // &nbsp; mantém as linhas vazias visíveis sem acrescentar pontos automáticos.
+                    return valor === '' ? '&nbsp;' : escapeHTML(valor);
+                })
+                .join('<br>');
             const conteudo = document.getElementById('conteudo-estatico');
             conteudo.innerHTML = htmlFinal || "Nenhuma informação/aviso disponível.";
             conteudo.classList.remove('info-updated');
