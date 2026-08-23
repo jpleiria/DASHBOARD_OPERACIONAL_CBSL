@@ -687,7 +687,7 @@ function alterarTamanhoFonte(tamanho) {
         const gridOp = document.getElementById('grid-operacional');
         operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`));
         const gridAp = document.getElementById('grid-apoio');
-        gridAp.insertAdjacentHTML('beforeend', `<button class="btn-info-auto" type="button" onclick="openAutomaticTones()">ℹ️<br>INFORMAÇÃO<br>TOQUES AUTOMÁTICOS</button>`);
+        gridAp.insertAdjacentHTML('beforeend', `<button class="btn-info-auto" type="button" onclick="openAutomaticTones()">ℹ️<br>INFORMAÇÃO HORÁRIOS<br>TOQUES AUTOMÁTICOS</button>`);
         apoios.forEach(i => gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`));
         updateClock(); setInterval(updateClock, 1000);
         carregarInfoGoogle();
