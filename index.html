@@ -579,6 +579,53 @@
     let lastActiveRadio = null; 
     let countdownInterval = null;
     const radioSilenceSeconds = { op: 60, ap: 2 };
+    const radioIds = ['comercial', 'rfm', 'm80', 'cotn'];
+    const autoRefreshDelay = 60 * 60 * 1000;
+
+    function existemToquesAtivos() {
+        return Object.keys(activeAudios).some(id => !radioIds.includes(id));
+    }
+
+    function guardarRadioParaRetomar() {
+        try {
+            if (lastActiveRadio && activeAudios[lastActiveRadio.id]) {
+                sessionStorage.setItem('dashboard-radio-a-retomar', JSON.stringify(lastActiveRadio));
+            } else {
+                sessionStorage.removeItem('dashboard-radio-a-retomar');
+            }
+        } catch (erro) {
+            console.warn('Não foi possível guardar a rádio ativa:', erro);
+        }
+    }
+
+    function retomarRadioAposAtualizacao() {
+        try {
+            const radioGuardada = sessionStorage.getItem('dashboard-radio-a-retomar');
+            sessionStorage.removeItem('dashboard-radio-a-retomar');
+            if (!radioGuardada) return;
+            const radio = JSON.parse(radioGuardada);
+            if (!radioIds.includes(radio.id) || !radio.url) return;
+            setTimeout(() => toggleRadio(radio.id, radio.url), 300);
+        } catch (erro) {
+            console.warn('Não foi possível retomar a rádio:', erro);
+        }
+    }
+
+    function tentarAtualizacaoAutomatica() {
+        // Os alertas e toques têm sempre prioridade: enquanto existir um, a página não atualiza.
+        if (existemToquesAtivos()) {
+            setTimeout(tentarAtualizacaoAutomatica, 5000);
+            return;
+        }
+        guardarRadioParaRetomar();
+        const urlAtualizada = new URL(window.location.href);
+        urlAtualizada.searchParams.set('_dashboardUpdate', Date.now().toString());
+        window.location.replace(urlAtualizada.toString());
+    }
+
+    function agendarAtualizacaoAutomatica() {
+        setTimeout(tentarAtualizacaoAutomatica, autoRefreshDelay);
+    }
 
     async function carregarInfoGoogle() {
         const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTSxSKqdt8O2nHhGdhbPkoG4z9yNnNNAolaHAqGn3Vn4wdgICPEJ3PKTxY-Ra8mYahwSjKHGCfFVjcb/pub?gid=0&single=true&output=csv'; 
@@ -692,6 +739,8 @@ function alterarTamanhoFonte(tamanho) {
         updateClock(); setInterval(updateClock, 1000);
         carregarInfoGoogle();
         setInterval(carregarInfoGoogle, 300000);
+        retomarRadioAposAtualizacao();
+        agendarAtualizacaoAutomatica();
         requestAnimationFrame(() => document.body.classList.add('anim-ready'));
     };
 
