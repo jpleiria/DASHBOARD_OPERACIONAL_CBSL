@@ -116,6 +116,31 @@
             text-align: center;
         }
         #grid-operacional .btn-audio { font-size: 0.92rem; }
+        #grid-apoio .btn-call-firefighters { grid-column: span 2; background: linear-gradient(135deg, #0e7490, #155e75); border: 2px solid #67e8f9; color: #fff; font-size: 1rem; letter-spacing: .04em; box-shadow: 0 0 0 2px rgba(103, 232, 249, .12), 0 6px 18px rgba(8, 145, 178, .25); }
+        #grid-apoio .btn-call-firefighters:hover { background: linear-gradient(135deg, #0891b2, #0e7490); }
+        .firefighter-backdrop { display: none; position: fixed; inset: 0; z-index: 8000; background: rgba(2, 6, 23, .82); align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
+        .firefighter-backdrop.open { display: flex; }
+        .firefighter-dialog { width: min(1000px, 100%); max-height: 92vh; overflow: auto; background: #202427; border: 2px solid #475569; border-radius: 12px; padding: 16px; box-sizing: border-box; box-shadow: 0 20px 60px #0009; }
+        .firefighter-dialog h2 { margin: 0 0 14px; text-align: center; }
+        .firefighter-step { margin: 14px 0; padding: 0 12px 12px; border-radius: 10px; background: #22405a; }
+        .firefighter-step strong { display: block; margin: 0 -12px 12px; padding: 8px; text-align: center; background: #4183b5; border-radius: 8px 8px 0 0; }
+        .firefighter-step.destination { background: #4a3800; }
+        .firefighter-step.destination strong { background: #ba8500; }
+        .firefighter-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 9px; }
+        #firefighter-options { max-height: 40vh; overflow-y: auto; }
+        .firefighter-options label, .firefighter-destination { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 64px; padding: 8px; background: #30343a; border: 2px solid #475569; border-radius: 8px; cursor: pointer; box-sizing: border-box; text-align: center; font: 700 .88rem/1.18 'Segoe UI', Roboto, sans-serif; color: white; overflow-wrap: anywhere; }
+        #firefighter-options label { min-height: 80px; padding: 20px 8px 7px; }
+        .firefighter-number { position: absolute; top: 6px; left: 6px; min-width: 27px; padding: 4px 2px; border-radius: 5px; background: #67e8f9; color: #0f172a; font-weight: 900; font-size: .82rem; line-height: 1; }
+        .firefighter-name { display: block; width: 100%; text-align: center; white-space: normal; word-break: normal; overflow-wrap: normal; line-height: 1.2; }
+        .firefighter-options label:has(input:checked), .firefighter-destination[aria-pressed="true"] { background: #1689ed; border-color: #5bb9ff; box-shadow: 0 0 12px #1689edaa; }
+        .firefighter-options input { position: absolute; opacity: 0; pointer-events: none; }
+        .firefighter-options label:focus-within, .firefighter-destination:focus-visible { outline: 3px solid white; outline-offset: 2px; }
+        .firefighter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .firefighter-actions button { border: 0; border-radius: 6px; padding: 12px 22px; color: white; font-weight: 800; cursor: pointer; background: #b91c1c; }
+        #firefighter-play { background: #1689ed; }
+        #firefighter-play:disabled { opacity: .45; cursor: not-allowed; }
+        #firefighter-status { min-height: 1.4em; color: #facc15; text-align: center; }
+        @media (max-width: 600px) { .firefighter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .btn-info-auto {
             background: #0f3d5e;
             border: 1px dashed #38bdf8;
@@ -574,6 +599,25 @@
     </main>
 </div>
 
+<div class="firefighter-backdrop" id="firefighter-backdrop" role="presentation">
+    <section class="firefighter-dialog" role="dialog" aria-modal="true" aria-labelledby="firefighter-title">
+        <h2 id="firefighter-title">CHAMAR BOMBEIROS</h2>
+        <div class="firefighter-step">
+            <strong>BOMBEIROS — SELECIONA UM OU MAIS</strong>
+            <div class="firefighter-options" id="firefighter-options"></div>
+        </div>
+        <div class="firefighter-step destination">
+            <strong>DESTINO DA CHAMADA</strong>
+            <div class="firefighter-options" id="firefighter-destinations"></div>
+        </div>
+        <p id="firefighter-status" role="status" aria-live="polite"></p>
+        <div class="firefighter-actions">
+            <button type="button" onclick="closeFirefighterCall()">CANCELAR</button>
+            <button type="button" id="firefighter-play" onclick="playFirefighterCall()" disabled>REPRODUZIR</button>
+        </div>
+    </section>
+</div>
+
 <script>
     const activeAudios = {};
     let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.1 };
@@ -731,11 +775,188 @@ function alterarTamanhoFonte(tamanho) {
         { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' }
     ];
 
+    // Lista importada de Piquetes BSL.xlsx, ordenada por número.
+    const firefighters = [
+        { number: "1", name: "Humberto Morgado" },
+        { number: "4", name: "José Rito" },
+        { number: "5", name: "Dominiciano Godinho" },
+        { number: "13", name: "Paulo Oliveira" },
+        { number: "14", name: "Álvaro Oliveira" },
+        { number: "15", name: "Filipe Neves Silva" },
+        { number: "16", name: "Nuno Narciso" },
+        { number: "17", name: "Gonçalo Costa" },
+        { number: "18", name: "José Pereira" },
+        { number: "19", name: "Miguel Domingues" },
+        { number: "20", name: "Eliseu Raínho" },
+        { number: "21", name: "Helder Pragosa" },
+        { number: "22", name: "Frederico Antonio" },
+        { number: "23", name: "Eduardo Pinheiro" },
+        { number: "24", name: "Narciso Fabião" },
+        { number: "25", name: "Luís Godinho" },
+        { number: "26", name: "Matos Pragosa" },
+        { number: "27", name: "Rui Carnide" },
+        { number: "28", name: "Ricardo Aparício" },
+        { number: "29", name: "João Lourenço" },
+        { number: "31", name: "João Paulo Pereira" },
+        { number: "32", name: "David Rogério" },
+        { number: "33", name: "David Coelho" },
+        { number: "34", name: "Rui João" },
+        { number: "35", name: "Nuno Jordão" },
+        { number: "36", name: "Jaime Vieira" },
+        { number: "37", name: "Diogo Marecos" },
+        { number: "38", name: "Gonçalo Amado" },
+        { number: "39", name: "Vitor Costa" },
+        { number: "40", name: "Paulo Ascenso" },
+        { number: "41", name: "Maria Alves" },
+        { number: "42", name: "Sérgio Ferreira" },
+        { number: "43", name: "José Cardoso" },
+        { number: "44", name: "Luís Dionísio" },
+        { number: "45", name: "Fernando Fernandes" },
+        { number: "46", name: "Gonçalo Vicente" },
+        { number: "47", name: "Vasco Santos" },
+        { number: "48", name: "João Murraças" },
+        { number: "50", name: "Paulo Jorge" },
+        { number: "51", name: "Pedro Rosado" },
+        { number: "52", name: "José Fonseca" },
+        { number: "54", name: "Marco Pereira" },
+        { number: "55", name: "Gonçalo Esteves" },
+        { number: "56", name: "Hugo Afonso" },
+        { number: "57", name: "André Domingues" },
+        { number: "58", name: "Paulo Godinho" },
+        { number: "59", name: "Pedro Folgado" },
+        { number: "61", name: "Costa Pereira" },
+        { number: "62", name: "Fábio Pires" },
+        { number: "63", name: "Tiago Narciso" },
+        { number: "64", name: "Rafael Oliveira" },
+        { number: "65", name: "João Hipólito" },
+        { number: "66", name: "Diogo Amado" },
+        { number: "67", name: "Rafael Marques" },
+        { number: "68", name: "Ricardo Saramago" },
+        { number: "69", name: "José Ruivo" },
+        { number: "70", name: "António Quaresma" },
+        { number: "71", name: "Rui Carvalho" },
+        { number: "72", name: "Ruben Clemente" },
+        { number: "73", name: "Gianluca Santo" },
+        { number: "74", name: "Rita Domingues" },
+        { number: "75", name: "Eduardo Gonçalves" },
+        { number: "76", name: "Tiago Carmo" },
+    ].sort((a, b) => Number(a.number) - Number(b.number));
+    const firefighterDestinations = [
+        { id: 'sair', label: 'Para sair', spoken: 'para sair' },
+        { id: 'gabinete', label: 'Gabinete do Sr. Comandante', spoken: 'ao gabinete do senhor comandante' },
+        { id: 'parque', label: 'Parque de viaturas', spoken: 'ao parque de viaturas' },
+        { id: 'parada', label: 'Parada', spoken: 'à parada' },
+        { id: 'central', label: 'Central', spoken: 'à central' },
+        { id: 'entrada', label: 'Entrada do quartel', spoken: 'à entrada do quartel' }
+    ];
+    let selectedFirefighterDestination = null;
+
+    function openFirefighterCall() {
+        selectedFirefighterDestination = null;
+        const peopleContainer = document.getElementById('firefighter-options');
+        peopleContainer.replaceChildren();
+        firefighters.forEach((person, index) => {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = 'firefighter-person';
+            input.value = String(index);
+            const number = document.createElement('span');
+            number.className = 'firefighter-number';
+            number.textContent = person.number;
+            const text = document.createElement('span');
+            text.className = 'firefighter-name';
+            text.textContent = person.name;
+            label.setAttribute('aria-label', `${person.number} — ${person.name}`);
+            label.append(input, number, text);
+            peopleContainer.append(label);
+        });
+        peopleContainer.onchange = updateFirefighterCall;
+        const destinationContainer = document.getElementById('firefighter-destinations');
+        destinationContainer.replaceChildren();
+        firefighterDestinations.forEach(destination => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'firefighter-destination';
+            button.dataset.destination = destination.id;
+            button.setAttribute('aria-pressed', 'false');
+            button.textContent = destination.label;
+            button.onclick = () => {
+                selectedFirefighterDestination = selectedFirefighterDestination === destination.id ? null : destination.id;
+                destinationContainer.querySelectorAll('.firefighter-destination').forEach(choice =>
+                    choice.setAttribute('aria-pressed', String(choice.dataset.destination === selectedFirefighterDestination)));
+                updateFirefighterCall();
+            };
+            destinationContainer.append(button);
+        });
+        updateFirefighterCall();
+        document.getElementById('firefighter-backdrop').classList.add('open');
+    }
+
+    function updateFirefighterCall() {
+        const count = document.querySelectorAll('[name="firefighter-person"]:checked').length;
+        document.getElementById('firefighter-play').disabled = !count || !selectedFirefighterDestination;
+        document.getElementById('firefighter-status').textContent = !count ? 'Seleciona pelo menos um bombeiro.'
+            : !selectedFirefighterDestination ? 'Seleciona o destino da chamada.'
+            : 'Chamada pronta a reproduzir.';
+    }
+
+    function closeFirefighterCall() {
+        document.getElementById('firefighter-backdrop').classList.remove('open');
+    }
+
+    function playFirefighterCall() {
+        const people = [...document.querySelectorAll('[name="firefighter-person"]:checked')]
+            .map(input => firefighters[Number(input.value)]).filter(Boolean);
+        const destination = firefighterDestinations.find(item => item.id === selectedFirefighterDestination);
+        if (!people.length || !destination) return;
+        const spokenPeople = people.map(person => `número ${person.number}, ${person.name}`);
+        const names = spokenPeople.length === 1 ? spokenPeople[0]
+            : spokenPeople.slice(0, -1).join(', ') + ' e ' + spokenPeople.at(-1);
+        const message = `Atenção. ${people.length === 1 ? 'bombeiro' : 'bombeiros'} ${names}, ${destination.spoken}`;
+        closeFirefighterCall();
+        if (activeAudios.chamar_bombeiros) {
+            activeAudios.chamar_bombeiros.pause();
+            delete activeAudios.chamar_bombeiros;
+        }
+        pauseCurrentRadios();
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById('silence-timer').textContent = '';
+        const btn = document.getElementById('btn-chamar_bombeiros');
+        btn.classList.add('is-playing');
+        const tone = new Audio('../../../../../toque_inicial.mp3');
+        tone.volume = sectionVolumes.ap;
+        activeAudios.chamar_bombeiros = tone;
+        let voiceStarted = false;
+        const finish = handle => {
+            if (activeAudios.chamar_bombeiros !== handle) return;
+            delete activeAudios.chamar_bombeiros;
+            btn.classList.remove('is-playing');
+            checkAndResumeRadio(radioSilenceSeconds.ap);
+        };
+        const startVoice = () => {
+            if (voiceStarted || activeAudios.chamar_bombeiros !== tone) return;
+            voiceStarted = true;
+            if (!('speechSynthesis' in window)) { finish(tone); return; }
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'pt-PT';
+            utterance.volume = sectionVolumes.ap;
+            const voiceHandle = { pause: () => speechSynthesis.cancel() };
+            activeAudios.chamar_bombeiros = voiceHandle;
+            utterance.onend = utterance.onerror = () => finish(voiceHandle);
+            speechSynthesis.speak(utterance);
+        };
+        tone.addEventListener('ended', startVoice, { once: true });
+        tone.addEventListener('error', startVoice, { once: true });
+        tone.play().catch(startVoice);
+    }
+
     window.onload = () => {
         const gridOp = document.getElementById('grid-operacional');
         operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`));
         const gridAp = document.getElementById('grid-apoio');
         gridAp.insertAdjacentHTML('beforeend', `<button class="btn-info-auto" type="button" onclick="openAutomaticTones()">ℹ️<br>INFORMAÇÃO HORÁRIOS<br>TOQUES AUTOMÁTICOS</button>`);
+        gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio btn-call-firefighters" id="btn-chamar_bombeiros" type="button" onclick="openFirefighterCall()">📣<br>CHAMAR BOMBEIROS</button>`);
         apoios.forEach(i => gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'ap')">${i.label}</button>`));
         updateClock(); setInterval(updateClock, 1000);
         carregarInfoGoogle();
