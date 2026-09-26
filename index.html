@@ -378,6 +378,14 @@
             .clock-container { gap: 10px; padding: 6px 10px; }
         }
 
+        /* Monitor 1080 × 1920: os controlos cabem por inteiro; os cards cedem altura. */
+        @media (orientation: portrait) and (min-width: 900px) and (min-height: 1500px) {
+            .controls-panel { height: auto; overflow-y: visible; }
+            .controls-panel .button-grid .btn-audio,
+            .controls-panel .btn-info-auto { min-height: 60px; padding: 6px 4px; }
+            .top-priority-apps { height: 32vh; }
+        }
+
         /* Animações funcionais e discretas */
         @keyframes dashboard-enter {
             from { opacity: 0; transform: translateY(8px); }
