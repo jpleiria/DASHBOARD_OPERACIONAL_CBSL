@@ -130,6 +130,12 @@
         #firefighter-options { max-height: 40vh; overflow-y: auto; }
         .firefighter-options label, .firefighter-destination { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 64px; padding: 8px; background: #30343a; border: 2px solid #475569; border-radius: 8px; cursor: pointer; box-sizing: border-box; text-align: center; font: 700 .88rem/1.18 'Segoe UI', Roboto, sans-serif; color: white; overflow-wrap: anywhere; }
         #firefighter-options label { min-height: 80px; padding: 20px 8px 7px; }
+        #firefighter-options label[data-rank="Sap."] { background: #26383a; border-color: #477477; }
+        #firefighter-options label[data-rank="SC2"] { background: #2b3544; border-color: #60758e; }
+        #firefighter-options label[data-rank="SC1"] { background: #343044; border-color: #796b91; }
+        #firefighter-options label[data-rank="SCPr"] { background: #3b3040; border-color: #946b8e; }
+        #firefighter-options label[data-rank="CMDT"] { background: #3b362a; border-color: #9a8556; }
+        #firefighter-options label:has(input:checked) { background: #1689ed; border-color: #5bb9ff; }
         .firefighter-number { position: absolute; top: 6px; left: 6px; min-width: 27px; padding: 4px 2px; border-radius: 5px; background: #67e8f9; color: #0f172a; font-weight: 900; font-size: .82rem; line-height: 1; }
         .firefighter-rank { position: absolute; top: 6px; right: 6px; min-width: 30px; padding: 4px 3px; border-radius: 5px; background: #facc15; color: #0f172a; font-weight: 900; font-size: .72rem; line-height: 1; }
         .firefighter-name { display: block; width: 100%; text-align: center; white-space: normal; word-break: normal; overflow-wrap: normal; line-height: 1.2; }
@@ -886,12 +892,14 @@ function alterarTamanhoFonte(tamanho) {
             input.type = 'checkbox';
             input.name = 'firefighter-person';
             input.value = String(index);
+            const rankCode = firefighterRankAbbreviations[person.rank] || person.rank;
+            label.dataset.rank = rankCode;
             const number = document.createElement('span');
             number.className = 'firefighter-number';
             number.textContent = person.number;
             const rank = document.createElement('span');
             rank.className = 'firefighter-rank';
-            rank.textContent = firefighterRankAbbreviations[person.rank] || person.rank;
+            rank.textContent = rankCode;
             const text = document.createElement('span');
             text.className = 'firefighter-name';
             text.textContent = person.name;
