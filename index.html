@@ -131,6 +131,7 @@
         .firefighter-options label, .firefighter-destination { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 64px; padding: 8px; background: #30343a; border: 2px solid #475569; border-radius: 8px; cursor: pointer; box-sizing: border-box; text-align: center; font: 700 .88rem/1.18 'Segoe UI', Roboto, sans-serif; color: white; overflow-wrap: anywhere; }
         #firefighter-options label { min-height: 80px; padding: 20px 8px 7px; }
         .firefighter-number { position: absolute; top: 6px; left: 6px; min-width: 27px; padding: 4px 2px; border-radius: 5px; background: #67e8f9; color: #0f172a; font-weight: 900; font-size: .82rem; line-height: 1; }
+        .firefighter-rank { position: absolute; top: 6px; right: 6px; min-width: 30px; padding: 4px 3px; border-radius: 5px; background: #facc15; color: #0f172a; font-weight: 900; font-size: .72rem; line-height: 1; }
         .firefighter-name { display: block; width: 100%; text-align: center; white-space: normal; word-break: normal; overflow-wrap: normal; line-height: 1.2; }
         .firefighter-options label:has(input:checked), .firefighter-destination[aria-pressed="true"] { background: #1689ed; border-color: #5bb9ff; box-shadow: 0 0 12px #1689edaa; }
         .firefighter-options input { position: absolute; opacity: 0; pointer-events: none; }
@@ -775,75 +776,88 @@ function alterarTamanhoFonte(tamanho) {
         { id: 'parque_viaturas', label: 'TODOS OS ELEMENTOS AO PARQUE VIATURAS' }
     ];
 
-    // Lista importada de Piquetes BSL.xlsx, ordenada por número.
+    // Lista importada de Listagem bombeiros.xlsx, ordenada por número.
     const firefighters = [
-        { number: "1", name: "Humberto Morgado" },
-        { number: "4", name: "José Rito" },
-        { number: "5", name: "Dominiciano Godinho" },
-        { number: "13", name: "Paulo Oliveira" },
-        { number: "14", name: "Álvaro Oliveira" },
-        { number: "15", name: "Filipe Neves Silva" },
-        { number: "16", name: "Nuno Narciso" },
-        { number: "17", name: "Gonçalo Costa" },
-        { number: "18", name: "José Pereira" },
-        { number: "19", name: "Miguel Domingues" },
-        { number: "20", name: "Eliseu Raínho" },
-        { number: "21", name: "Helder Pragosa" },
-        { number: "22", name: "Frederico Antonio" },
-        { number: "23", name: "Eduardo Pinheiro" },
-        { number: "24", name: "Narciso Fabião" },
-        { number: "25", name: "Luís Godinho" },
-        { number: "26", name: "Matos Pragosa" },
-        { number: "27", name: "Rui Carnide" },
-        { number: "28", name: "Ricardo Aparício" },
-        { number: "29", name: "João Lourenço" },
-        { number: "31", name: "João Paulo Pereira" },
-        { number: "32", name: "David Rogério" },
-        { number: "33", name: "David Coelho" },
-        { number: "34", name: "Rui João" },
-        { number: "35", name: "Nuno Jordão" },
-        { number: "36", name: "Jaime Vieira" },
-        { number: "37", name: "Diogo Marecos" },
-        { number: "38", name: "Gonçalo Amado" },
-        { number: "39", name: "Vitor Costa" },
-        { number: "40", name: "Paulo Ascenso" },
-        { number: "41", name: "Maria Alves" },
-        { number: "42", name: "Sérgio Ferreira" },
-        { number: "43", name: "José Cardoso" },
-        { number: "44", name: "Luís Dionísio" },
-        { number: "45", name: "Fernando Fernandes" },
-        { number: "46", name: "Gonçalo Vicente" },
-        { number: "47", name: "Vasco Santos" },
-        { number: "48", name: "João Murraças" },
-        { number: "50", name: "Paulo Jorge" },
-        { number: "51", name: "Pedro Rosado" },
-        { number: "52", name: "José Fonseca" },
-        { number: "54", name: "Marco Pereira" },
-        { number: "55", name: "Gonçalo Esteves" },
-        { number: "56", name: "Hugo Afonso" },
-        { number: "57", name: "André Domingues" },
-        { number: "58", name: "Paulo Godinho" },
-        { number: "59", name: "Pedro Folgado" },
-        { number: "61", name: "Costa Pereira" },
-        { number: "62", name: "Fábio Pires" },
-        { number: "63", name: "Tiago Narciso" },
-        { number: "64", name: "Rafael Oliveira" },
-        { number: "65", name: "João Hipólito" },
-        { number: "66", name: "Diogo Amado" },
-        { number: "67", name: "Rafael Marques" },
-        { number: "68", name: "Ricardo Saramago" },
-        { number: "69", name: "José Ruivo" },
-        { number: "70", name: "António Quaresma" },
-        { number: "71", name: "Rui Carvalho" },
-        { number: "72", name: "Ruben Clemente" },
-        { number: "73", name: "Gianluca Santo" },
-        { number: "74", name: "Rita Domingues" },
-        { number: "75", name: "Eduardo Gonçalves" },
-        { number: "76", name: "Tiago Carmo" },
+        { rank: "Comandante", number: "1", name: "Humberto Morgado" },
+        { rank: "SubChefe Principal", number: "4", name: "José Rito" },
+        { rank: "SubChefe Principal", number: "5", name: "Dominiciano Godinho" },
+        { rank: "SubChefe primeira", number: "13", name: "Paulo Oliveira" },
+        { rank: "SubChefe primeira", number: "14", name: "Álvaro Oliveira" },
+        { rank: "SubChefe primeira", number: "15", name: "Neves Silva" },
+        { rank: "SubChefe primeira", number: "16", name: "Nuno Narciso" },
+        { rank: "SubChefe primeira", number: "17", name: "Gonçalo Costa" },
+        { rank: "SubChefe primeira", number: "18", name: "José Pereira" },
+        { rank: "SubChefe primeira", number: "19", name: "Miguel Domingues" },
+        { rank: "SubChefe primeira", number: "20", name: "Eliseu Raínho" },
+        { rank: "SubChefe primeira", number: "21", name: "Helder Pragosa" },
+        { rank: "SubChefe primeira", number: "22", name: "Frederico Antonio" },
+        { rank: "SubChefe segunda", number: "23", name: "Eduardo Pinheiro" },
+        { rank: "SubChefe segunda", number: "24", name: "Narciso Fabião" },
+        { rank: "SubChefe segunda", number: "25", name: "Luís Godinho" },
+        { rank: "SubChefe segunda", number: "26", name: "Matos Pragosa" },
+        { rank: "SubChefe segunda", number: "27", name: "Rui Carnide" },
+        { rank: "SubChefe segunda", number: "28", name: "Ricardo Aparício" },
+        { rank: "SubChefe segunda", number: "29", name: "João Lourenço" },
+        { rank: "SubChefe segunda", number: "31", name: "João Paulo Pereira" },
+        { rank: "SubChefe segunda", number: "32", name: "David Rogério" },
+        { rank: "SubChefe segunda", number: "33", name: "David Coelho" },
+        { rank: "SubChefe segunda", number: "34", name: "Rui João" },
+        { rank: "SubChefe segunda", number: "35", name: "Nuno Jordão" },
+        { rank: "SubChefe segunda", number: "36", name: "Jaime Vieira" },
+        { rank: "SubChefe segunda", number: "37", name: "Diogo Marecos" },
+        { rank: "SubChefe segunda", number: "38", name: "Gonçalo Amado" },
+        { rank: "SubChefe segunda", number: "39", name: "Vitor Costa" },
+        { rank: "SubChefe segunda", number: "40", name: "Paulo Ascenso" },
+        { rank: "SubChefe segunda", number: "41", name: "Maria Alves" },
+        { rank: "SubChefe segunda", number: "42", name: "Sérgio Ferreira" },
+        { rank: "SubChefe segunda", number: "43", name: "José Cardoso" },
+        { rank: "SubChefe segunda", number: "44", name: "Luís Dionísio" },
+        { rank: "SubChefe segunda", number: "45", name: "Fernando Fernandes" },
+        { rank: "SubChefe segunda", number: "46", name: "Gonçalo Vicente" },
+        { rank: "SubChefe segunda", number: "47", name: "Vasco Santos" },
+        { rank: "SubChefe segunda", number: "48", name: "João Murraças" },
+        { rank: "Sapador bombeiro", number: "50", name: "Paulo Jorge" },
+        { rank: "Sapador bombeiro", number: "51", name: "Pedro Rosado" },
+        { rank: "Sapador bombeiro", number: "52", name: "José Fonseca" },
+        { rank: "Sapador bombeiro", number: "54", name: "Marco Pereira" },
+        { rank: "Sapador bombeiro", number: "55", name: "Gonçalo Esteves" },
+        { rank: "Sapador bombeiro", number: "56", name: "Hugo Afonso" },
+        { rank: "Sapador bombeiro", number: "57", name: "André Domingues" },
+        { rank: "Sapador bombeiro", number: "58", name: "Paulo Godinho" },
+        { rank: "Sapador bombeiro", number: "59", name: "Pedro Folgado" },
+        { rank: "Sapador bombeiro", number: "61", name: "Costa Pereira" },
+        { rank: "Sapador bombeiro", number: "62", name: "Fábio Pires" },
+        { rank: "Sapador bombeiro", number: "63", name: "Tiago Narciso" },
+        { rank: "Sapador bombeiro", number: "64", name: "Rafael Oliveira" },
+        { rank: "Sapador bombeiro", number: "65", name: "João Hipólito" },
+        { rank: "Sapador bombeiro", number: "66", name: "Diogo Amado" },
+        { rank: "Sapador bombeiro", number: "67", name: "Rafael Marques" },
+        { rank: "Sapador bombeiro", number: "68", name: "Ricardo Saramago" },
+        { rank: "Sapador bombeiro", number: "69", name: "José Ruivo" },
+        { rank: "Sapador bombeiro", number: "70", name: "António Quaresma" },
+        { rank: "Sapador bombeiro", number: "71", name: "Rui Carvalho" },
+        { rank: "Sapador bombeiro", number: "72", name: "Ruben Clemente" },
+        { rank: "Sapador bombeiro", number: "73", name: "Gianluca Santo" },
+        { rank: "Sapador bombeiro", number: "74", name: "Rita Domingues" },
+        { rank: "Sapador bombeiro", number: "75", name: "Eduardo Gonçalves" },
+        { rank: "Sapador bombeiro", number: "76", name: "Tiago Carmo" },
     ].sort((a, b) => Number(a.number) - Number(b.number));
+    const firefighterRankAbbreviations = {
+        'Sapador bombeiro': 'Sap.',
+        'Sapador Bombeiro': 'Sap.',
+        'SubChefe segunda': 'SC2',
+        'SubChefe 2º': 'SC2',
+        'SubChefe primeira': 'SC1',
+        'SubChefe 1º': 'SC1',
+        'SubChefe Principal': 'SCPr',
+        'Comandante': 'CMDT'
+    };
     const firefighterDestinations = [
         { id: 'sair', label: 'Para sair', spoken: 'para sair' },
         { id: 'gabinete', label: 'Gabinete do Sr. Comandante', spoken: 'ao gabinete do senhor comandante' },
+        { id: 'gabinete_chefe_servico', label: 'Gabinete do chefe de serviço', spoken: 'ao gabinete do chefe de serviço' },
+        { id: 'secretaria', label: 'Secretaria', spoken: 'à secretaria' },
+        { id: 'planeamento', label: 'Planeamento', spoken: 'ao planeamento' },
         { id: 'parque', label: 'Parque de viaturas', spoken: 'ao parque de viaturas' },
         { id: 'parada', label: 'Parada', spoken: 'à parada' },
         { id: 'central', label: 'Central', spoken: 'à central' },
@@ -864,11 +878,14 @@ function alterarTamanhoFonte(tamanho) {
             const number = document.createElement('span');
             number.className = 'firefighter-number';
             number.textContent = person.number;
+            const rank = document.createElement('span');
+            rank.className = 'firefighter-rank';
+            rank.textContent = firefighterRankAbbreviations[person.rank] || person.rank;
             const text = document.createElement('span');
             text.className = 'firefighter-name';
             text.textContent = person.name;
-            label.setAttribute('aria-label', `${person.number} — ${person.name}`);
-            label.append(input, number, text);
+            label.setAttribute('aria-label', `${person.rank} número ${person.number} ${person.name}`);
+            label.append(input, number, rank, text);
             peopleContainer.append(label);
         });
         peopleContainer.onchange = updateFirefighterCall;
@@ -910,10 +927,7 @@ function alterarTamanhoFonte(tamanho) {
             .map(input => firefighters[Number(input.value)]).filter(Boolean);
         const destination = firefighterDestinations.find(item => item.id === selectedFirefighterDestination);
         if (!people.length || !destination) return;
-        const spokenPeople = people.map(person => `número ${person.number}, ${person.name}`);
-        const names = spokenPeople.length === 1 ? spokenPeople[0]
-            : spokenPeople.slice(0, -1).join(', ') + ' e ' + spokenPeople.at(-1);
-        const message = `Atenção. ${people.length === 1 ? 'bombeiro' : 'bombeiros'} ${names}, ${destination.spoken}`;
+        const spokenPeople = people.map(person => `${person.rank} número ${person.number} ${person.name}`);
         closeFirefighterCall();
         if (activeAudios.chamar_bombeiros) {
             activeAudios.chamar_bombeiros.pause();
@@ -938,13 +952,27 @@ function alterarTamanhoFonte(tamanho) {
             if (voiceStarted || activeAudios.chamar_bombeiros !== tone) return;
             voiceStarted = true;
             if (!('speechSynthesis' in window)) { finish(tone); return; }
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.lang = 'pt-PT';
-            utterance.volume = sectionVolumes.ap;
-            const voiceHandle = { pause: () => speechSynthesis.cancel() };
+            let pauseTimer = null;
+            const voiceHandle = { pause: () => {
+                if (pauseTimer) clearTimeout(pauseTimer);
+                speechSynthesis.cancel();
+            } };
             activeAudios.chamar_bombeiros = voiceHandle;
-            utterance.onend = utterance.onerror = () => finish(voiceHandle);
-            speechSynthesis.speak(utterance);
+            const speakPerson = index => {
+                if (activeAudios.chamar_bombeiros !== voiceHandle) return;
+                const isLast = index === spokenPeople.length - 1;
+                const phrase = `${index === 0 ? 'Atenção. ' : ''}${spokenPeople[index]}${isLast ? ', ' + destination.spoken : ''}`;
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                utterance.lang = 'pt-PT';
+                utterance.volume = sectionVolumes.ap;
+                utterance.onend = utterance.onerror = () => {
+                    if (activeAudios.chamar_bombeiros !== voiceHandle) return;
+                    if (isLast) finish(voiceHandle);
+                    else pauseTimer = setTimeout(() => speakPerson(index + 1), 250);
+                };
+                speechSynthesis.speak(utterance);
+            };
+            speakPerson(0);
         };
         tone.addEventListener('ended', startVoice, { once: true });
         tone.addEventListener('error', startVoice, { once: true });
