@@ -927,7 +927,7 @@ function alterarTamanhoFonte(tamanho) {
             .map(input => firefighters[Number(input.value)]).filter(Boolean);
         const destination = firefighterDestinations.find(item => item.id === selectedFirefighterDestination);
         if (!people.length || !destination) return;
-        const spokenPeople = people.map(person => `${person.rank} número ${person.number} ${person.name}`);
+        const spokenPeople = people.map(person => `${person.rank}, ${person.number}, ${person.name}`);
         closeFirefighterCall();
         if (activeAudios.chamar_bombeiros) {
             activeAudios.chamar_bombeiros.pause();
@@ -961,7 +961,7 @@ function alterarTamanhoFonte(tamanho) {
             const speakPerson = index => {
                 if (activeAudios.chamar_bombeiros !== voiceHandle) return;
                 const isLast = index === spokenPeople.length - 1;
-                const phrase = `${index === 0 ? 'Atenção. ' : ''}${spokenPeople[index]}${isLast ? ', ' + destination.spoken : ''}`;
+                const phrase = `${index === 0 ? 'Atenção, ' : ''}${spokenPeople[index]}${isLast ? ', ' + destination.spoken : ''}`;
                 const utterance = new SpeechSynthesisUtterance(phrase);
                 utterance.lang = 'pt-PT';
                 utterance.volume = sectionVolumes.ap;
