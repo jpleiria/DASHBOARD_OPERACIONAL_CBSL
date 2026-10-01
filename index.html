@@ -284,6 +284,7 @@
             text-align: center;
         }
         .app-card .app-icon { font-size: 1rem; }
+        #card-portal-pem .app-logo { display: block; width: auto; height: 55%; max-width: 70%; object-fit: contain; }
         .app-card .app-desc { font-size: 13px; font-weight: bold; text-transform: uppercase; margin-top: 3px; line-height: 1.1; }
         .app-card iframe { display: none; }
 
@@ -593,8 +594,11 @@
                     <div class="app-icon">📻</div><div class="app-desc">CONSULTA<br>RÁDIOS SIRESP</div>
                     <iframe data-src="https://jpleiria.github.io/radios_siresp_consulta/"></iframe>
                 </div>
-                <div class="app-card" style="border-style: dashed; opacity: 0.3; cursor: default;">
-                    <div class="app-desc">LIVRE</div>
+                <div class="app-card" id="card-portal-pem" onclick="toggleMaximize('card-portal-pem')">
+                    <button class="close-btn-max">VOLTAR</button>
+                    <img class="app-logo" src="inem-logo.webp" alt="INEM" width="499" height="499">
+                    <div class="app-desc">PORTAL PEM</div>
+                    <iframe title="Portal PEM INEM" data-src="https://portalpem.inem.pt/"></iframe>
                 </div>
             </section>
 
