@@ -130,23 +130,25 @@
         #firefighter-options { max-height: 40vh; overflow-y: auto; }
         .firefighter-options label, .firefighter-destination { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 64px; padding: 8px; background: #30343a; border: 2px solid #475569; border-radius: 8px; cursor: pointer; box-sizing: border-box; text-align: center; font: 700 .88rem/1.18 'Segoe UI', Roboto, sans-serif; color: white; overflow-wrap: anywhere; }
         #firefighter-options label { min-height: 80px; padding: 20px 8px 7px; }
-        #firefighter-options label[data-rank="Sap."] { background: #26383a; border-color: #477477; }
-        #firefighter-options label[data-rank="SC2"] { background: #2b3544; border-color: #60758e; }
-        #firefighter-options label[data-rank="SC1"] { background: #343044; border-color: #796b91; }
-        #firefighter-options label[data-rank="SCPr"] { background: #3b3040; border-color: #946b8e; }
-        #firefighter-options label[data-rank="CMDT"] { background: #3b362a; border-color: #9a8556; }
-        #firefighter-options label:has(input:checked) { background: #1689ed; border-color: #5bb9ff; }
+        .firefighter-options label[data-rank="Sap."] { background: #26383a; border-color: #477477; }
+        .firefighter-options label[data-rank="SC2"] { background: #2b3544; border-color: #60758e; }
+        .firefighter-options label[data-rank="SC1"] { background: #343044; border-color: #796b91; }
+        .firefighter-options label[data-rank="SCPr"] { background: #3b3040; border-color: #946b8e; }
+        .firefighter-options label[data-rank="CMDT"] { background: #3b362a; border-color: #9a8556; }
+        .firefighter-options label:has(input:checked) { background: #1689ed; border-color: #5bb9ff; }
         .firefighter-number { position: absolute; top: 6px; left: 6px; min-width: 27px; padding: 4px 2px; border-radius: 5px; background: #67e8f9; color: #0f172a; font-weight: 900; font-size: .82rem; line-height: 1; }
         .firefighter-rank { position: absolute; top: 6px; right: 6px; min-width: 30px; padding: 4px 3px; border-radius: 5px; background: #facc15; color: #0f172a; font-weight: 900; font-size: .72rem; line-height: 1; }
         .firefighter-name { display: block; width: 100%; text-align: center; white-space: normal; word-break: normal; overflow-wrap: normal; line-height: 1.2; }
         .firefighter-options label:has(input:checked), .firefighter-destination[aria-pressed="true"] { background: #1689ed; border-color: #5bb9ff; box-shadow: 0 0 12px #1689edaa; }
         .firefighter-options input { position: absolute; opacity: 0; pointer-events: none; }
         .firefighter-options label:focus-within, .firefighter-destination:focus-visible { outline: 3px solid white; outline-offset: 2px; }
-        .firefighter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .firefighter-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
         .firefighter-actions button { border: 0; border-radius: 6px; padding: 12px 22px; color: white; font-weight: 800; cursor: pointer; background: #b91c1c; }
-        #firefighter-play { background: #1689ed; }
-        #firefighter-play:disabled { opacity: .45; cursor: not-allowed; }
-        #firefighter-status { min-height: 1.4em; color: #facc15; text-align: center; }
+        #firefighter-play, #other-alert-play, #other-alert-tone { background: #1689ed; }
+        #firefighter-play:disabled, #other-alert-play:disabled { opacity: .45; cursor: not-allowed; }
+        #other-alert-options { max-height: 40vh; overflow-y: auto; }
+        #other-alert-options label { min-height: 80px; padding: 20px 8px 7px; }
+        #firefighter-status, #other-alert-status { min-height: 1.4em; color: #facc15; text-align: center; }
         @media (max-width: 600px) { .firefighter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .btn-info-auto {
             background: #0f3d5e;
@@ -635,6 +637,26 @@
     </section>
 </div>
 
+<div class="firefighter-backdrop" id="other-alert-backdrop" role="presentation">
+    <section class="firefighter-dialog" role="dialog" aria-modal="true" aria-labelledby="other-alert-title">
+        <h2 id="other-alert-title">OUTRAS OCORRÊNCIAS</h2>
+        <div class="firefighter-step destination">
+            <strong>TIPO DE OCORRÊNCIA — SELECIONA UMA</strong>
+            <div class="firefighter-options" id="other-alert-occurrences"></div>
+        </div>
+        <div class="firefighter-step">
+            <strong>BOMBEIROS — SELECIONA UM OU MAIS</strong>
+            <div class="firefighter-options" id="other-alert-options"></div>
+        </div>
+        <p id="other-alert-status" role="status" aria-live="polite"></p>
+        <div class="firefighter-actions">
+            <button type="button" onclick="closeOtherAlert()">CANCELAR</button>
+            <button type="button" id="other-alert-tone" onclick="playOtherAlertTone()">APENAS TOQUE</button>
+            <button type="button" id="other-alert-play" onclick="playOtherAlertWithVoice()" disabled>TOQUE COM OCORRÊNCIA E BOMBEIROS</button>
+        </div>
+    </section>
+</div>
+
 <script>
     const activeAudios = {};
     let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.1 };
@@ -884,6 +906,141 @@ function alterarTamanhoFonte(tamanho) {
         { id: 'entrada', label: 'Entrada do quartel', spoken: 'à entrada do quartel' }
     ];
     let selectedFirefighterDestination = null;
+    const otherAlertOccurrences = [
+        'Corte de árvore', 'Abertura de porta com socorro',
+        'Abertura de elevador com socorro', 'Inundação', 'Fuga de gás',
+        'Limpeza e sinalização de via', 'Fecho de contentor',
+        'Recolha animal', 'Queda de estruturas'
+    ];
+    let selectedOtherAlertOccurrence = null;
+
+    function openOtherAlert() {
+        selectedOtherAlertOccurrence = null;
+        const occurrenceContainer = document.getElementById('other-alert-occurrences');
+        occurrenceContainer.replaceChildren();
+        otherAlertOccurrences.forEach((occurrence, index) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'firefighter-destination';
+            button.textContent = occurrence;
+            button.setAttribute('aria-pressed', 'false');
+            button.onclick = () => {
+                selectedOtherAlertOccurrence = selectedOtherAlertOccurrence === index ? null : index;
+                occurrenceContainer.querySelectorAll('button').forEach((choice, choiceIndex) =>
+                    choice.setAttribute('aria-pressed', String(choiceIndex === selectedOtherAlertOccurrence)));
+                updateOtherAlert();
+            };
+            occurrenceContainer.append(button);
+        });
+        const peopleContainer = document.getElementById('other-alert-options');
+        peopleContainer.replaceChildren();
+        firefighters.forEach((person, index) => {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = 'other-alert-person';
+            input.value = String(index);
+            const rankCode = firefighterRankAbbreviations[person.rank] || person.rank;
+            label.dataset.rank = rankCode;
+            const number = document.createElement('span');
+            number.className = 'firefighter-number';
+            number.textContent = person.number;
+            const rank = document.createElement('span');
+            rank.className = 'firefighter-rank';
+            rank.textContent = rankCode;
+            const name = document.createElement('span');
+            name.className = 'firefighter-name';
+            name.textContent = person.name;
+            label.setAttribute('aria-label', `${person.rank} número ${person.number} ${person.name}`);
+            label.append(input, number, rank, name);
+            peopleContainer.append(label);
+        });
+        peopleContainer.onchange = updateOtherAlert;
+        updateOtherAlert();
+        document.getElementById('other-alert-backdrop').classList.add('open');
+    }
+
+    function updateOtherAlert() {
+        const count = document.querySelectorAll('[name="other-alert-person"]:checked').length;
+        document.getElementById('other-alert-play').disabled = selectedOtherAlertOccurrence === null || !count;
+        document.getElementById('other-alert-status').textContent = selectedOtherAlertOccurrence === null
+            ? 'Seleciona o tipo de ocorrência para o toque com voz.'
+            : !count ? 'Seleciona pelo menos um bombeiro para o toque com voz.'
+            : 'Toque com ocorrência e bombeiros pronto a reproduzir.';
+    }
+
+    function closeOtherAlert() {
+        document.getElementById('other-alert-backdrop').classList.remove('open');
+    }
+
+    function playOtherAlertTone() {
+        closeOtherAlert();
+        playAudio('alerta', 'op');
+    }
+
+    function playOtherAlertWithVoice() {
+        const occurrence = otherAlertOccurrences[selectedOtherAlertOccurrence];
+        const people = [...document.querySelectorAll('[name="other-alert-person"]:checked')]
+            .map(input => firefighters[Number(input.value)]).filter(Boolean);
+        if (!occurrence || !people.length) return;
+        closeOtherAlert();
+        if (activeAudios.alerta) {
+            activeAudios.alerta.pause();
+            delete activeAudios.alerta;
+        }
+        pauseCurrentRadios();
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById('silence-timer').textContent = '';
+        const btn = document.getElementById('btn-alerta');
+        btn.classList.add('is-playing');
+        const finish = handle => {
+            if (activeAudios.alerta !== handle) return;
+            delete activeAudios.alerta;
+            btn.classList.remove('is-playing');
+            checkAndResumeRadio(radioSilenceSeconds.op);
+        };
+        const playOccurrenceTone = () => {
+            if (!btn.classList.contains('is-playing')) return;
+            const tone = new Audio('alerta.mp3');
+            tone.volume = sectionVolumes.op;
+            activeAudios.alerta = tone;
+            tone.addEventListener('ended', () => startVoice(tone), { once: true });
+            tone.addEventListener('error', () => startVoice(tone), { once: true });
+            tone.play().catch(() => startVoice(tone));
+        };
+        let voiceStarted = false;
+        const startVoice = tone => {
+            if (voiceStarted) return;
+            if (activeAudios.alerta !== tone) return;
+            voiceStarted = true;
+            if (!('speechSynthesis' in window)) { finish(tone); return; }
+            const voiceHandle = { pause: () => speechSynthesis.cancel() };
+            activeAudios.alerta = voiceHandle;
+            const names = people.map(person => `${person.rank}, ${person.number}, ${person.name}`);
+            const utterance = new SpeechSynthesisUtterance(`Atenção, ocorrência de ${occurrence}. Para sair: ${names.join('; ')}.`);
+            utterance.lang = 'pt-PT';
+            utterance.volume = sectionVolumes.op;
+            utterance.onend = utterance.onerror = () => finish(voiceHandle);
+            speechSynthesis.speak(utterance);
+        };
+        const hour = new Date().getHours();
+        if (hour >= 23 || hour < 7) {
+            const nightTone = new Audio('alerta_noturno.mp3');
+            nightTone.volume = sectionVolumes.op;
+            activeAudios.alerta = nightTone;
+            nightTone.addEventListener('ended', () => {
+                if (activeAudios.alerta === nightTone) playOccurrenceTone();
+            }, { once: true });
+            nightTone.addEventListener('error', () => {
+                if (activeAudios.alerta === nightTone) playOccurrenceTone();
+            }, { once: true });
+            nightTone.play().catch(() => {
+                if (activeAudios.alerta === nightTone) playOccurrenceTone();
+            });
+        } else {
+            playOccurrenceTone();
+        }
+    }
 
     function openFirefighterCall() {
         selectedFirefighterDestination = null;
@@ -1003,7 +1160,7 @@ function alterarTamanhoFonte(tamanho) {
 
     window.onload = () => {
         const gridOp = document.getElementById('grid-operacional');
-        operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="playAudio('${i.id}', 'op')">${i.label}</button>`));
+        operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="${i.id === 'alerta' ? 'openOtherAlert()' : `playAudio('${i.id}', 'op')`}">${i.label}</button>`));
         const gridAp = document.getElementById('grid-apoio');
         gridAp.insertAdjacentHTML('beforeend', `<button class="btn-info-auto" type="button" onclick="openAutomaticTones()">ℹ️<br>INFORMAÇÃO HORÁRIOS<br>TOQUES AUTOMÁTICOS</button>`);
         gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio btn-call-firefighters" id="btn-chamar_bombeiros" type="button" onclick="openFirefighterCall()">📣<br>CHAMAR BOMBEIROS</button>`);
