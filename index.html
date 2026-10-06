@@ -140,6 +140,8 @@
         .firefighter-rank { position: absolute; top: 6px; right: 6px; min-width: 30px; padding: 4px 3px; border-radius: 5px; background: #facc15; color: #0f172a; font-weight: 900; font-size: .72rem; line-height: 1; }
         .firefighter-name { display: block; width: 100%; text-align: center; white-space: normal; word-break: normal; overflow-wrap: normal; line-height: 1.2; }
         .firefighter-options label:has(input:checked), .firefighter-destination[aria-pressed="true"] { background: #1689ed; border-color: #5bb9ff; box-shadow: 0 0 12px #1689edaa; }
+        #firefighter-all { grid-column: 1 / -1; justify-self: end; width: min(100%, 240px); margin-top: 16px; background: #374151; border-color: #94a3b8; }
+        #firefighter-all[aria-pressed="true"] { background: #1689ed; border-color: #5bb9ff; box-shadow: 0 0 12px #1689edaa; }
         #other-alert-occurrences { grid-template-columns: repeat(6, minmax(0, 1fr)); }
         #other-alert-custom-button { grid-column: 6; background: #30343a; border: 2px dashed #64748b; color: #cbd5e1; flex-direction: column; gap: 3px; }
         #other-alert-custom-button[aria-pressed="true"] { background: #15803d; border-color: #86efac; box-shadow: 0 0 12px #4ade8088; }
@@ -913,6 +915,7 @@ function alterarTamanhoFonte(tamanho) {
         { id: 'entrada', label: 'Entrada do quartel', spoken: 'à entrada do quartel' }
     ];
     let selectedFirefighterDestination = null;
+    let allFirefightersSelected = false;
     const otherAlertOccurrences = [
         'Corte de árvore', 'Abertura de porta com socorro',
         'Abertura de elevador com socorro', 'Inundação', 'Fuga de gás',
@@ -1080,6 +1083,7 @@ function alterarTamanhoFonte(tamanho) {
 
     function openFirefighterCall() {
         selectedFirefighterDestination = null;
+        allFirefightersSelected = false;
         const peopleContainer = document.getElementById('firefighter-options');
         peopleContainer.replaceChildren();
         firefighters.forEach((person, index) => {
@@ -1103,7 +1107,26 @@ function alterarTamanhoFonte(tamanho) {
             label.append(input, number, rank, text);
             peopleContainer.append(label);
         });
-        peopleContainer.onchange = updateFirefighterCall;
+        const allButton = document.createElement('button');
+        allButton.type = 'button';
+        allButton.id = 'firefighter-all';
+        allButton.className = 'firefighter-destination';
+        allButton.textContent = 'TODOS OS BOMBEIROS';
+        allButton.setAttribute('aria-pressed', 'false');
+        allButton.onclick = () => {
+            allFirefightersSelected = !allFirefightersSelected;
+            allButton.setAttribute('aria-pressed', String(allFirefightersSelected));
+            if (allFirefightersSelected) peopleContainer.querySelectorAll('[name="firefighter-person"]').forEach(input => input.checked = false);
+            updateFirefighterCall();
+        };
+        peopleContainer.append(allButton);
+        peopleContainer.onchange = () => {
+            if (allFirefightersSelected) {
+                allFirefightersSelected = false;
+                allButton.setAttribute('aria-pressed', 'false');
+            }
+            updateFirefighterCall();
+        };
         const destinationContainer = document.getElementById('firefighter-destinations');
         destinationContainer.replaceChildren();
         firefighterDestinations.forEach(destination => {
@@ -1127,8 +1150,8 @@ function alterarTamanhoFonte(tamanho) {
 
     function updateFirefighterCall() {
         const count = document.querySelectorAll('[name="firefighter-person"]:checked').length;
-        document.getElementById('firefighter-play').disabled = !count || !selectedFirefighterDestination;
-        document.getElementById('firefighter-status').textContent = !count ? 'Seleciona pelo menos um bombeiro.'
+        document.getElementById('firefighter-play').disabled = (!count && !allFirefightersSelected) || !selectedFirefighterDestination;
+        document.getElementById('firefighter-status').textContent = !count && !allFirefightersSelected ? 'Seleciona pelo menos um bombeiro ou todos os bombeiros.'
             : !selectedFirefighterDestination ? 'Seleciona o destino da chamada.'
             : 'Chamada pronta a reproduzir.';
     }
@@ -1141,8 +1164,9 @@ function alterarTamanhoFonte(tamanho) {
         const people = [...document.querySelectorAll('[name="firefighter-person"]:checked')]
             .map(input => firefighters[Number(input.value)]).filter(Boolean);
         const destination = firefighterDestinations.find(item => item.id === selectedFirefighterDestination);
-        if (!people.length || !destination) return;
-        const spokenPeople = people.map(person => `${person.rank}, ${person.number}, ${person.name}`);
+        if ((!people.length && !allFirefightersSelected) || !destination) return;
+        const spokenPeople = allFirefightersSelected ? ['todos os bombeiros']
+            : people.map(person => `${person.rank}, ${person.number}, ${person.name}`);
         closeFirefighterCall();
         if (activeAudios.chamar_bombeiros) {
             activeAudios.chamar_bombeiros.pause();
