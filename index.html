@@ -961,11 +961,13 @@ function alterarTamanhoFonte(tamanho) {
 
     function updateOtherAlert() {
         const count = document.querySelectorAll('[name="other-alert-person"]:checked').length;
-        document.getElementById('other-alert-play').disabled = selectedOtherAlertOccurrence === null || !count;
+        const playButton = document.getElementById('other-alert-play');
+        playButton.disabled = selectedOtherAlertOccurrence === null;
+        playButton.textContent = count ? 'TOQUE COM OCORRÊNCIA E BOMBEIROS' : 'TOQUE COM OCORRÊNCIA';
         document.getElementById('other-alert-status').textContent = selectedOtherAlertOccurrence === null
             ? 'Seleciona o tipo de ocorrência para o toque com voz.'
-            : !count ? 'Seleciona pelo menos um bombeiro para o toque com voz.'
-            : 'Toque com ocorrência e bombeiros pronto a reproduzir.';
+            : count ? 'Toque com ocorrência e bombeiros pronto a reproduzir.'
+            : 'Toque com ocorrência pronto a reproduzir.';
     }
 
     function closeOtherAlert() {
@@ -981,7 +983,7 @@ function alterarTamanhoFonte(tamanho) {
         const occurrence = otherAlertOccurrences[selectedOtherAlertOccurrence];
         const people = [...document.querySelectorAll('[name="other-alert-person"]:checked')]
             .map(input => firefighters[Number(input.value)]).filter(Boolean);
-        if (!occurrence || !people.length) return;
+        if (!occurrence) return;
         closeOtherAlert();
         if (activeAudios.alerta) {
             activeAudios.alerta.pause();
@@ -1016,7 +1018,9 @@ function alterarTamanhoFonte(tamanho) {
             const voiceHandle = { pause: () => speechSynthesis.cancel() };
             activeAudios.alerta = voiceHandle;
             const names = people.map(person => `${person.rank}, ${person.number}, ${person.name}`);
-            const utterance = new SpeechSynthesisUtterance(`Atenção, ocorrência de ${occurrence}. Para sair: ${names.join('; ')}.`);
+            const phrase = `Atenção, ocorrência de ${occurrence}.` +
+                (names.length ? ` Para sair: ${names.join('; ')}.` : '');
+            const utterance = new SpeechSynthesisUtterance(phrase);
             utterance.lang = 'pt-PT';
             utterance.volume = sectionVolumes.op;
             utterance.onend = utterance.onerror = () => finish(voiceHandle);
