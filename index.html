@@ -140,6 +140,9 @@
         .firefighter-rank { position: absolute; top: 6px; right: 6px; min-width: 30px; padding: 4px 3px; border-radius: 5px; background: #facc15; color: #0f172a; font-weight: 900; font-size: .72rem; line-height: 1; }
         .firefighter-name { display: block; width: 100%; text-align: center; white-space: normal; word-break: normal; overflow-wrap: normal; line-height: 1.2; }
         .firefighter-options label:has(input:checked), .firefighter-destination[aria-pressed="true"] { background: #1689ed; border-color: #5bb9ff; box-shadow: 0 0 12px #1689edaa; }
+        #other-alert-custom-button { background: #14532d; border-color: #4ade80; color: #f0fdf4; flex-direction: column; gap: 3px; }
+        #other-alert-custom-button[aria-pressed="true"] { background: #15803d; border-color: #86efac; box-shadow: 0 0 12px #4ade8088; }
+        #other-alert-custom-button small { font-size: .78rem; font-weight: 600; }
         .firefighter-options input { position: absolute; opacity: 0; pointer-events: none; }
         .firefighter-options label:focus-within, .firefighter-destination:focus-visible { outline: 3px solid white; outline-offset: 2px; }
         .firefighter-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
@@ -148,6 +151,8 @@
         #firefighter-play:disabled, #other-alert-play:disabled { opacity: .45; cursor: not-allowed; }
         #other-alert-options { max-height: 40vh; overflow-y: auto; }
         #other-alert-options label { min-height: 80px; padding: 20px 8px 7px; }
+        #other-alert-custom-field { display: none; width: 100%; box-sizing: border-box; margin-top: 10px; padding: 12px; border: 2px solid #67e8f9; border-radius: 8px; background: #30343a; color: white; font: 600 1rem 'Segoe UI', Roboto, sans-serif; }
+        #other-alert-custom-field.visible { display: block; }
         #firefighter-status, #other-alert-status { min-height: 1.4em; color: #facc15; text-align: center; }
         @media (max-width: 600px) { .firefighter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .btn-info-auto {
@@ -643,6 +648,7 @@
         <div class="firefighter-step destination">
             <strong>TIPO DE OCORRÊNCIA — SELECIONA UMA</strong>
             <div class="firefighter-options" id="other-alert-occurrences"></div>
+            <input id="other-alert-custom-field" type="text" maxlength="120" placeholder="Escreve o tipo de ocorrência" aria-label="Outro tipo de ocorrência" oninput="updateOtherAlert()">
         </div>
         <div class="firefighter-step">
             <strong>BOMBEIROS — SELECIONA UM OU MAIS</strong>
@@ -915,6 +921,9 @@ function alterarTamanhoFonte(tamanho) {
 
     function openOtherAlert() {
         selectedOtherAlertOccurrence = null;
+        const customField = document.getElementById('other-alert-custom-field');
+        customField.value = '';
+        customField.classList.remove('visible');
         const occurrenceContainer = document.getElementById('other-alert-occurrences');
         occurrenceContainer.replaceChildren();
         otherAlertOccurrences.forEach((occurrence, index) => {
@@ -925,12 +934,29 @@ function alterarTamanhoFonte(tamanho) {
             button.setAttribute('aria-pressed', 'false');
             button.onclick = () => {
                 selectedOtherAlertOccurrence = selectedOtherAlertOccurrence === index ? null : index;
-                occurrenceContainer.querySelectorAll('button').forEach((choice, choiceIndex) =>
-                    choice.setAttribute('aria-pressed', String(choiceIndex === selectedOtherAlertOccurrence)));
+                occurrenceContainer.querySelectorAll('button').forEach(choice =>
+                    choice.setAttribute('aria-pressed', String(choice.dataset.occurrence === String(selectedOtherAlertOccurrence))));
+                customField.classList.remove('visible');
                 updateOtherAlert();
             };
+            button.dataset.occurrence = String(index);
             occurrenceContainer.append(button);
         });
+        const customButton = document.createElement('button');
+        customButton.type = 'button';
+        customButton.className = 'firefighter-destination';
+        customButton.id = 'other-alert-custom-button';
+        customButton.innerHTML = 'OUTRA OCORRÊNCIA<small>(EDITÁVEL)</small>';
+        customButton.setAttribute('aria-pressed', 'false');
+        customButton.onclick = () => {
+            selectedOtherAlertOccurrence = selectedOtherAlertOccurrence === 'custom' ? null : 'custom';
+            occurrenceContainer.querySelectorAll('button').forEach(choice =>
+                choice.setAttribute('aria-pressed', String(choice === customButton && selectedOtherAlertOccurrence === 'custom')));
+            customField.classList.toggle('visible', selectedOtherAlertOccurrence === 'custom');
+            if (selectedOtherAlertOccurrence === 'custom') customField.focus();
+            updateOtherAlert();
+        };
+        occurrenceContainer.append(customButton);
         const peopleContainer = document.getElementById('other-alert-options');
         peopleContainer.replaceChildren();
         firefighters.forEach((person, index) => {
@@ -961,10 +987,13 @@ function alterarTamanhoFonte(tamanho) {
 
     function updateOtherAlert() {
         const count = document.querySelectorAll('[name="other-alert-person"]:checked').length;
+        const customOccurrence = document.getElementById('other-alert-custom-field').value.trim();
+        const hasOccurrence = selectedOtherAlertOccurrence !== null &&
+            (selectedOtherAlertOccurrence !== 'custom' || !!customOccurrence);
         const playButton = document.getElementById('other-alert-play');
-        playButton.disabled = selectedOtherAlertOccurrence === null;
+        playButton.disabled = !hasOccurrence;
         playButton.textContent = count ? 'TOQUE COM OCORRÊNCIA E BOMBEIROS' : 'TOQUE COM OCORRÊNCIA';
-        document.getElementById('other-alert-status').textContent = selectedOtherAlertOccurrence === null
+        document.getElementById('other-alert-status').textContent = !hasOccurrence
             ? 'Seleciona o tipo de ocorrência para o toque com voz.'
             : count ? 'Toque com ocorrência e bombeiros pronto a reproduzir.'
             : 'Toque com ocorrência pronto a reproduzir.';
@@ -980,7 +1009,9 @@ function alterarTamanhoFonte(tamanho) {
     }
 
     function playOtherAlertWithVoice() {
-        const occurrence = otherAlertOccurrences[selectedOtherAlertOccurrence];
+        const occurrence = selectedOtherAlertOccurrence === 'custom'
+            ? document.getElementById('other-alert-custom-field').value.trim()
+            : otherAlertOccurrences[selectedOtherAlertOccurrence];
         const people = [...document.querySelectorAll('[name="other-alert-person"]:checked')]
             .map(input => firefighters[Number(input.value)]).filter(Boolean);
         if (!occurrence) return;
