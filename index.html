@@ -155,6 +155,11 @@
         #other-alert-options { max-height: 40vh; overflow-y: auto; }
         #other-alert-options label { min-height: 80px; padding: 20px 8px 7px; }
         #medical-priorities { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        #medical-priorities [data-priority="P1"] { background: #b91c1c; border-color: #ef4444; color: #fff; }
+        #medical-priorities [data-priority="P2"] { background: #c2410c; border-color: #fb923c; color: #fff; }
+        #medical-priorities [data-priority="P3"] { background: #eab308; border-color: #fde047; color: #172033; }
+        #medical-priorities [data-priority="P4"] { background: #15803d; border-color: #4ade80; color: #fff; }
+        #medical-priorities [aria-pressed="true"] { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 18px currentColor; }
         #other-alert-custom-field { display: none; width: 100%; box-sizing: border-box; margin-top: 10px; padding: 12px; border: 2px solid #67e8f9; border-radius: 8px; background: #30343a; color: white; font: 600 1rem 'Segoe UI', Roboto, sans-serif; }
         #other-alert-custom-field.visible { display: block; }
         #firefighter-status, #other-alert-status, #medical-status { min-height: 1.4em; color: #facc15; text-align: center; }
@@ -702,6 +707,7 @@
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'firefighter-destination';
+            button.dataset.priority = priority;
             button.textContent = priority;
             button.setAttribute('aria-pressed', 'false');
             button.onclick = () => {
@@ -1359,6 +1365,7 @@ function iniciarReproducaoReal(id, section, btn, announcement = null) {
         const utterance = new SpeechSynthesisUtterance(announcement);
         utterance.lang = 'pt-PT';
         utterance.volume = sectionVolumes[section];
+        if (id === 'emergencia_medica') utterance.rate = 0.7;
         utterance.onend = utterance.onerror = () => finalizarToque(voiceHandle);
         speechSynthesis.speak(utterance);
     };
