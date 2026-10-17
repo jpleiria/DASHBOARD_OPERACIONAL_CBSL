@@ -150,13 +150,14 @@
         .firefighter-options label:focus-within, .firefighter-destination:focus-visible { outline: 3px solid white; outline-offset: 2px; }
         .firefighter-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
         .firefighter-actions button { border: 0; border-radius: 6px; padding: 12px 22px; color: white; font-weight: 800; cursor: pointer; background: #b91c1c; }
-        #firefighter-play, #other-alert-play, #other-alert-tone { background: #1689ed; }
+        #firefighter-play, #other-alert-play, #other-alert-tone, #medical-play { background: #1689ed; }
         #firefighter-play:disabled, #other-alert-play:disabled { opacity: .45; cursor: not-allowed; }
         #other-alert-options { max-height: 40vh; overflow-y: auto; }
         #other-alert-options label { min-height: 80px; padding: 20px 8px 7px; }
+        #medical-priorities { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         #other-alert-custom-field { display: none; width: 100%; box-sizing: border-box; margin-top: 10px; padding: 12px; border: 2px solid #67e8f9; border-radius: 8px; background: #30343a; color: white; font: 600 1rem 'Segoe UI', Roboto, sans-serif; }
         #other-alert-custom-field.visible { display: block; }
-        #firefighter-status, #other-alert-status { min-height: 1.4em; color: #facc15; text-align: center; }
+        #firefighter-status, #other-alert-status, #medical-status { min-height: 1.4em; color: #facc15; text-align: center; }
         @media (max-width: 800px) { #other-alert-occurrences { grid-template-columns: repeat(3, minmax(0, 1fr)); } #other-alert-custom-button { grid-column: 3; } }
         @media (max-width: 500px) { #other-alert-occurrences { grid-template-columns: repeat(2, minmax(0, 1fr)); } #other-alert-custom-button { grid-column: 2; } }
         @media (max-width: 600px) { .firefighter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -668,6 +669,21 @@
     </section>
 </div>
 
+<div class="firefighter-backdrop" id="medical-backdrop" role="presentation">
+    <section class="firefighter-dialog" role="dialog" aria-modal="true" aria-labelledby="medical-title">
+        <h2 id="medical-title">EMERGÊNCIA MÉDICA</h2>
+        <div class="firefighter-step destination">
+            <strong>PRIORIDADE — SELECIONA UMA (OPCIONAL)</strong>
+            <div class="firefighter-options" id="medical-priorities"></div>
+        </div>
+        <p id="medical-status" role="status" aria-live="polite">Sem prioridade selecionada: será reproduzido apenas o toque.</p>
+        <div class="firefighter-actions">
+            <button type="button" onclick="closeMedicalCall()">CANCELAR</button>
+            <button type="button" id="medical-play" onclick="playMedicalCall()">APENAS TOQUE</button>
+        </div>
+    </section>
+</div>
+
 <script>
     const activeAudios = {};
     let sectionVolumes = { op: 1.0, ap: 1.0, radio: 0.1 };
@@ -676,6 +692,44 @@
     const radioSilenceSeconds = { op: 60, ap: 2 };
     const radioIds = ['comercial', 'rfm', 'm80', 'cotn'];
     const autoRefreshDelay = 60 * 60 * 1000;
+    let selectedMedicalPriority = null;
+
+    function openMedicalCall() {
+        selectedMedicalPriority = null;
+        const container = document.getElementById('medical-priorities');
+        container.replaceChildren();
+        ['P1', 'P2', 'P3', 'P4'].forEach(priority => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'firefighter-destination';
+            button.textContent = priority;
+            button.setAttribute('aria-pressed', 'false');
+            button.onclick = () => {
+                selectedMedicalPriority = selectedMedicalPriority === priority ? null : priority;
+                container.querySelectorAll('button').forEach(choice =>
+                    choice.setAttribute('aria-pressed', String(choice.textContent === selectedMedicalPriority)));
+                document.getElementById('medical-play').textContent = selectedMedicalPriority
+                    ? `TOQUE COM ${selectedMedicalPriority}` : 'APENAS TOQUE';
+                document.getElementById('medical-status').textContent = selectedMedicalPriority
+                    ? `Será anunciado ${selectedMedicalPriority} após o toque.`
+                    : 'Sem prioridade selecionada: será reproduzido apenas o toque.';
+            };
+            container.append(button);
+        });
+        document.getElementById('medical-play').textContent = 'APENAS TOQUE';
+        document.getElementById('medical-status').textContent = 'Sem prioridade selecionada: será reproduzido apenas o toque.';
+        document.getElementById('medical-backdrop').classList.add('open');
+    }
+
+    function closeMedicalCall() {
+        document.getElementById('medical-backdrop').classList.remove('open');
+    }
+
+    function playMedicalCall() {
+        const priority = selectedMedicalPriority;
+        closeMedicalCall();
+        playAudio('emergencia_medica', 'op', priority);
+    }
 
     function existemToquesAtivos() {
         return Object.keys(activeAudios).some(id => !radioIds.includes(id));
@@ -1220,7 +1274,7 @@ function alterarTamanhoFonte(tamanho) {
 
     window.onload = () => {
         const gridOp = document.getElementById('grid-operacional');
-        operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="${i.id === 'alerta' ? 'openOtherAlert()' : `playAudio('${i.id}', 'op')`}">${i.label}</button>`));
+        operacionais.forEach(i => gridOp.insertAdjacentHTML('beforeend', `<button class="btn-audio" id="btn-${i.id}" onclick="${i.id === 'alerta' ? 'openOtherAlert()' : i.id === 'emergencia_medica' ? 'openMedicalCall()' : `playAudio('${i.id}', 'op')`}">${i.label}</button>`));
         const gridAp = document.getElementById('grid-apoio');
         gridAp.insertAdjacentHTML('beforeend', `<button class="btn-info-auto" type="button" onclick="openAutomaticTones()">ℹ️<br>INFORMAÇÃO HORÁRIOS<br>TOQUES AUTOMÁTICOS</button>`);
         gridAp.insertAdjacentHTML('beforeend', `<button class="btn-audio btn-call-firefighters" id="btn-chamar_bombeiros" type="button" onclick="openFirefighterCall()">📣<br>CHAMAR BOMBEIROS</button>`);
@@ -1233,7 +1287,7 @@ function alterarTamanhoFonte(tamanho) {
         requestAnimationFrame(() => document.body.classList.add('anim-ready'));
     };
 
-    function playAudio(id, section) {
+    function playAudio(id, section, announcement = null) {
     const btn = document.getElementById('btn-' + id);
     
     if (activeAudios[id]) { 
@@ -1266,7 +1320,7 @@ function alterarTamanhoFonte(tamanho) {
         audioNoturno.onended = () => {
             delete activeAudios['noturno_temp'];
             // Após o fim do noturno, inicia o operacional real
-            iniciarReproducaoReal(id, section, btn);
+            iniciarReproducaoReal(id, section, btn, announcement);
         };
         const cancelarToqueNoturno = () => {
             if (activeAudios['noturno_temp'] !== audioNoturno) return;
@@ -1278,28 +1332,40 @@ function alterarTamanhoFonte(tamanho) {
         audioNoturno.play().catch(cancelarToqueNoturno);
     } else {
         // Horário normal: toca imediatamente
-        iniciarReproducaoReal(id, section, btn);
+        iniciarReproducaoReal(id, section, btn, announcement);
     }
 }
 
 // Função auxiliar para evitar repetição de código
-function iniciarReproducaoReal(id, section, btn) {
+function iniciarReproducaoReal(id, section, btn, announcement = null) {
     const audio = new Audio(id + '.mp3');
     audio.volume = sectionVolumes[section];
     if (!btn.classList.contains('is-playing')) btn.classList.add('is-playing');
     
     activeAudios[id] = audio;
 
-    const finalizarToque = () => {
-        if (activeAudios[id] !== audio) return;
+    const finalizarToque = handle => {
+        if (activeAudios[id] !== handle) return;
         btn.classList.remove('is-playing');
         delete activeAudios[id];
         checkAndResumeRadio(radioSilenceSeconds[section]);
     };
 
-    audio.addEventListener('ended', finalizarToque, { once: true });
-    audio.addEventListener('error', finalizarToque, { once: true });
-    audio.play().catch(finalizarToque);
+    const anunciarAposToque = () => {
+        if (activeAudios[id] !== audio) return;
+        if (!announcement || !('speechSynthesis' in window)) { finalizarToque(audio); return; }
+        const voiceHandle = { pause: () => speechSynthesis.cancel() };
+        activeAudios[id] = voiceHandle;
+        const utterance = new SpeechSynthesisUtterance(announcement);
+        utterance.lang = 'pt-PT';
+        utterance.volume = sectionVolumes[section];
+        utterance.onend = utterance.onerror = () => finalizarToque(voiceHandle);
+        speechSynthesis.speak(utterance);
+    };
+
+    audio.addEventListener('ended', anunciarAposToque, { once: true });
+    audio.addEventListener('error', () => finalizarToque(audio), { once: true });
+    audio.play().catch(() => finalizarToque(audio));
 }
 
     function pauseCurrentRadios() {
