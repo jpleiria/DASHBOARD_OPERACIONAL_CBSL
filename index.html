@@ -1356,6 +1356,7 @@ function alterarTamanhoFonte(tamanho) {
         activeAudios['noturno_temp'] = audioNoturno;
 
         audioNoturno.onended = () => {
+            if (activeAudios['noturno_temp'] !== audioNoturno) return;
             delete activeAudios['noturno_temp'];
             // Após o fim do noturno, inicia o operacional real
             iniciarReproducaoReal(id, section, btn, announcement);
@@ -1500,6 +1501,7 @@ function iniciarReproducaoReal(id, section, btn, announcement = null) {
             b.classList.remove('radio-playing');
             if(['btn-comercial', 'btn-rfm', 'btn-m80', 'btn-cotn'].includes(b.id)) b.style.background = "#334155";
         });
+        updateMedicalButtonPlayback();
         lastActiveRadio = null;
     }
 
