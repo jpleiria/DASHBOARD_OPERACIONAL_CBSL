@@ -150,7 +150,7 @@
         .firefighter-options label:focus-within, .firefighter-destination:focus-visible { outline: 3px solid white; outline-offset: 2px; }
         .firefighter-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
         .firefighter-actions button { border: 0; border-radius: 6px; padding: 12px 22px; color: white; font-weight: 800; cursor: pointer; background: #b91c1c; }
-        #firefighter-play, #other-alert-play, #other-alert-tone, #medical-play { background: #1689ed; }
+        #firefighter-play, #other-alert-play, #other-alert-tone { background: #1689ed; }
         #firefighter-play:disabled, #other-alert-play:disabled { opacity: .45; cursor: not-allowed; }
         #other-alert-options { max-height: 40vh; overflow-y: auto; }
         #other-alert-options label { min-height: 80px; padding: 20px 8px 7px; }
@@ -160,15 +160,21 @@
         #medical-priorities [data-priority="P3"] { background: #eab308; border-color: #fde047; color: #172033; }
         #medical-priorities [data-priority="P4"] { background: #15803d; border-color: #4ade80; color: #fff; }
         #medical-priorities [aria-pressed="true"] { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 18px currentColor; }
-        #medical-play { order: -1; flex: 1 0 100%; min-height: 72px; font-size: 1.25rem; letter-spacing: .04em; border: 3px solid #7dd3fc; box-shadow: 0 0 0 3px rgba(125, 211, 252, .18), 0 8px 22px rgba(14, 165, 233, .3); }
-        #medical-play:hover { background: #0369a1; }
-        #medical-play:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+        #medical-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+        #medical-actions button { min-height: 72px; padding: 12px; border-radius: 9px; color: #fff; font: 800 1.05rem 'Segoe UI', Roboto, sans-serif; cursor: pointer; }
+        #medical-tone { background: #1689ed; border: 3px solid #7dd3fc; box-shadow: 0 8px 22px rgba(14, 165, 233, .3); }
+        #medical-tone:hover { background: #0369a1; }
+        #medical-priority-play { background: #0e7490; border: 2px solid #67e8f9; }
+        #medical-priority-play:disabled { background: #475569; border-color: #94a3b8; opacity: .55; cursor: not-allowed; }
+        #medical-actions button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+        #medical-footer { margin-top: 18px; }
         #other-alert-custom-field { display: none; width: 100%; box-sizing: border-box; margin-top: 10px; padding: 12px; border: 2px solid #67e8f9; border-radius: 8px; background: #30343a; color: white; font: 600 1rem 'Segoe UI', Roboto, sans-serif; }
         #other-alert-custom-field.visible { display: block; }
-        #firefighter-status, #other-alert-status, #medical-status { min-height: 1.4em; color: #facc15; text-align: center; }
+        #firefighter-status, #other-alert-status { min-height: 1.4em; color: #facc15; text-align: center; }
         @media (max-width: 800px) { #other-alert-occurrences { grid-template-columns: repeat(3, minmax(0, 1fr)); } #other-alert-custom-button { grid-column: 3; } }
         @media (max-width: 500px) { #other-alert-occurrences { grid-template-columns: repeat(2, minmax(0, 1fr)); } #other-alert-custom-button { grid-column: 2; } }
         @media (max-width: 600px) { .firefighter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 500px) { #medical-actions { grid-template-columns: 1fr; } }
         .btn-info-auto {
             background: #0f3d5e;
             border: 1px dashed #38bdf8;
@@ -684,10 +690,12 @@
             <strong>PRIORIDADE — SELECIONA UMA (OPCIONAL)</strong>
             <div class="firefighter-options" id="medical-priorities"></div>
         </div>
-        <p id="medical-status" role="status" aria-live="polite">Sem prioridade selecionada: será reproduzido apenas o toque.</p>
-        <div class="firefighter-actions">
+        <div id="medical-actions">
+            <button type="button" id="medical-tone" onclick="playMedicalTone()">APENAS TOQUE</button>
+            <button type="button" id="medical-priority-play" onclick="playMedicalPriority()" disabled>TOQUE + PRIORIDADE</button>
+        </div>
+        <div class="firefighter-actions" id="medical-footer">
             <button type="button" onclick="closeMedicalCall()">CANCELAR</button>
-            <button type="button" id="medical-play" onclick="playMedicalCall()">APENAS TOQUE</button>
         </div>
     </section>
 </div>
@@ -717,16 +725,16 @@
                 selectedMedicalPriority = selectedMedicalPriority === priority ? null : priority;
                 container.querySelectorAll('button').forEach(choice =>
                     choice.setAttribute('aria-pressed', String(choice.textContent === selectedMedicalPriority)));
-                document.getElementById('medical-play').textContent = selectedMedicalPriority
-                    ? `TOQUE COM ${selectedMedicalPriority}` : 'APENAS TOQUE';
-                document.getElementById('medical-status').textContent = selectedMedicalPriority
-                    ? `Será anunciado ${selectedMedicalPriority} após o toque.`
-                    : 'Sem prioridade selecionada: será reproduzido apenas o toque.';
+                const priorityPlay = document.getElementById('medical-priority-play');
+                priorityPlay.disabled = !selectedMedicalPriority;
+                priorityPlay.textContent = selectedMedicalPriority
+                    ? `TOQUE + ${selectedMedicalPriority}` : 'TOQUE + PRIORIDADE';
             };
             container.append(button);
         });
-        document.getElementById('medical-play').textContent = 'APENAS TOQUE';
-        document.getElementById('medical-status').textContent = 'Sem prioridade selecionada: será reproduzido apenas o toque.';
+        const priorityPlay = document.getElementById('medical-priority-play');
+        priorityPlay.disabled = true;
+        priorityPlay.textContent = 'TOQUE + PRIORIDADE';
         document.getElementById('medical-backdrop').classList.add('open');
     }
 
@@ -734,7 +742,13 @@
         document.getElementById('medical-backdrop').classList.remove('open');
     }
 
-    function playMedicalCall() {
+    function playMedicalTone() {
+        closeMedicalCall();
+        playAudio('emergencia_medica', 'op');
+    }
+
+    function playMedicalPriority() {
+        if (!selectedMedicalPriority) return;
         const priority = selectedMedicalPriority;
         closeMedicalCall();
         playAudio('emergencia_medica', 'op', priority);
