@@ -754,6 +754,18 @@
         playAudio('emergencia_medica', 'op', priority);
     }
 
+    function updateMedicalButtonPlayback(priority = null) {
+        const button = document.getElementById('btn-emergencia_medica');
+        if (priority === null) {
+            button.innerHTML = '*️⃣<br>EMERGÊNCIA MÉDICA';
+            button.setAttribute('aria-label', 'Emergência Médica');
+        } else {
+            const label = priority ? `Emergência Médica, ${priority}` : 'Emergência Médica';
+            button.innerHTML = `<span>🔊 A TOCAR<br>EMERGÊNCIA MÉDICA${priority ? `<br>${priority}` : ''}</span>`;
+            button.setAttribute('aria-label', `A tocar: ${label}`);
+        }
+    }
+
     function existemToquesAtivos() {
         return Object.keys(activeAudios).some(id => !radioIds.includes(id));
     }
@@ -1317,9 +1329,12 @@ function alterarTamanhoFonte(tamanho) {
         activeAudios[id].pause(); 
         delete activeAudios[id]; 
         btn.classList.remove('is-playing'); 
+        if (id === 'emergencia_medica') updateMedicalButtonPlayback();
         checkAndResumeRadio(radioSilenceSeconds[section]); 
         return; 
     }
+
+    if (id === 'emergencia_medica') updateMedicalButtonPlayback(announcement || '');
 
     if (section === 'op' || section === 'ap') {
         pauseCurrentRadios();
@@ -1349,6 +1364,7 @@ function alterarTamanhoFonte(tamanho) {
             if (activeAudios['noturno_temp'] !== audioNoturno) return;
             delete activeAudios['noturno_temp'];
             btn.classList.remove('is-playing');
+            if (id === 'emergencia_medica') updateMedicalButtonPlayback();
             checkAndResumeRadio(radioSilenceSeconds.op);
         };
         audioNoturno.addEventListener('error', cancelarToqueNoturno, { once: true });
@@ -1371,6 +1387,7 @@ function iniciarReproducaoReal(id, section, btn, announcement = null) {
         if (activeAudios[id] !== handle) return;
         btn.classList.remove('is-playing');
         delete activeAudios[id];
+        if (id === 'emergencia_medica') updateMedicalButtonPlayback();
         checkAndResumeRadio(radioSilenceSeconds[section]);
     };
 
