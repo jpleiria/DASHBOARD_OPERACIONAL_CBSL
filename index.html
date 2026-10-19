@@ -770,6 +770,18 @@
         return Object.keys(activeAudios).some(id => !radioIds.includes(id));
     }
 
+    function existeSelecaoDeToquePendente() {
+        return ['firefighter-backdrop', 'other-alert-backdrop', 'medical-backdrop']
+            .some(id => document.getElementById(id)?.classList.contains('open'));
+    }
+
+    function existeTrabalhoEmCursoNosCards() {
+        if (document.querySelector('.app-card.maximized, .app-container-full.maximized')) return true;
+        const elementoAtivo = document.activeElement;
+        if (elementoAtivo?.tagName === 'IFRAME') return true;
+        return Boolean(elementoAtivo?.matches('input, textarea, select, [contenteditable="true"]'));
+    }
+
     function guardarRadioParaRetomar() {
         try {
             if (lastActiveRadio && activeAudios[lastActiveRadio.id]) {
@@ -796,8 +808,8 @@
     }
 
     function tentarAtualizacaoAutomatica() {
-        // Os alertas e toques têm sempre prioridade: enquanto existir um, a página não atualiza.
-        if (existemToquesAtivos()) {
+        // Preserva a reprodução ativa e as escolhas ainda abertas nos submenus de toque.
+        if (existemToquesAtivos() || existeSelecaoDeToquePendente() || existeTrabalhoEmCursoNosCards()) {
             setTimeout(tentarAtualizacaoAutomatica, 5000);
             return;
         }
